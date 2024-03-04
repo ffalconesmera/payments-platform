@@ -1,0 +1,103 @@
+version: '3.9'
+services:
+
+  payment_db:
+    image: postgres:latest
+    container_name: payment_db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      # - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_MULTIPLE_DATABASES= "payments_transactions","payments_merchant"
+    ports:
+      - 5432:5432
+    networks:
+      - payment_platform
+    env_file:
+      - ./payments_platform/payments/.env.example
+    volumes:
+      - pgdata1:/var/lib/postgresql/data
+      - ./multi-database:/docker-entrypoint-initdb.d
+      # - create-multiple-postgresql-databases.sh /docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # merchant_db:
+  #   image: postgres:latest
+  #   container_name: merchant_db
+  #   environment:
+  #     - POSTGRES_USER=${DB_USER}
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #     - POSTGRES_DB=${DB_NAME}
+  #   ports:
+  #     - 5432:5432
+  #   networks:
+  #     - payment_platform
+  #   env_file:
+  #     - ./payments_platform/merchants/.env
+  #   volumes:
+  #     - pgdata1:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: ./payments_platform/merchants
+      dockerfile: ./Dockerfile
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - DATABASE_PORT=${DB_PORT}
+    ports:
+      - 8081:8081
+    depends_on:
+      payment_db:
+        condition: service_healthy
+      # - merchant_db
+    restart: on-failure
+    networks:
+      - payment_platform
+
+  app_1:
+    build:
+      context: ./payments_platform/payments
+      dockerfile: ./Dockerfile
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - DATABASE_PORT=${DB_PORT}
+    ports:
+      - 8082:8082
+    depends_on:
+      payment_db:
+        condition: service_healthy
+      # - merchant_db
+    restart: on-failure
+    networks:
+      - payment_platform
+
+  app_2:
+    build:
+      context: ./bank_simulator/
+      dockerfile: ./Dockerfile
+    ports:
+      - 8083:8083
+    depends_on:
+      payment_db:
+        condition: service_healthy
+      # - merchant_db
+    restart: on-failure
+    networks:
+      - payment_platform
+
+volumes:
+  pgdata1:
+
+networks:
+  payment_platform:
+    driver: bridge
