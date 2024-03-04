@@ -4,41 +4,36 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ffalconesmera/payments-platform/merchants/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// Database: is an interface manage connections with database
-type Database interface {
+var singleDatabase *gorm.DB
+
+type DatabaseConnection interface {
 	GetDatabase() *gorm.DB
-	InitDatabase(host, port, dbName, user, password string)
+	InitDatabase(host, port, name, user, password string)
 	Close()
 }
 
-type databaseConnection struct {
-	db     *gorm.DB
-	config config.Config
+type databaseConnection struct{}
+
+func NewDatabaseConnection() *databaseConnection {
+	return &databaseConnection{}
 }
 
-func NewDatabaseConnection(config config.Config) *databaseConnection {
-	return &databaseConnection{config: config}
+func (d *databaseConnection) GetDatabase() *gorm.DB {
+	return singleDatabase
 }
 
-// GetDatabase: return instance of gorm.DB
-func (db *databaseConnection) GetDatabase() *gorm.DB {
-	return db.db
-}
-
-// InitDatabase: initialize database connection
-func (d *databaseConnection) InitDatabase() {
+func (d *databaseConnection) InitDatabase(host, port, name, user, password string) {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
-		d.config.GetDatabaseHost(),
-		d.config.GetDatabasePort(),
-		d.config.GetDatabaseName(),
-		d.config.GetDatabaseUser(),
-		d.config.GetDatabasePassword(),
+		host,
+		port,
+		name,
+		user,
+		password,
 	)
 
 	log.Println("connecting with database..")
@@ -50,17 +45,13 @@ func (d *databaseConnection) InitDatabase() {
 
 	log.Println("database connected..!")
 
-	d.db = db
+	singleDatabase = db
 }
 
-// Close: close database connection
 func (d *databaseConnection) Close() {
-	log.Println("closing database connection..")
-
-	sqlDB, err := d.db.DB()
+	sqlDB, err := d.GetDatabase().DB()
 	if err != nil {
-		log.Println(fmt.Sprintf("failed to get sql db: %s", err))
+		panic(fmt.Sprintf("failed to get sql db: %s", err))
 	}
-
 	sqlDB.Close()
 }

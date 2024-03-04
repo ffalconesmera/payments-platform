@@ -10,7 +10,7 @@ import (
 
 // CustomLog is an interface for print by console
 type CustomLog interface {
-	GetRequestContextId(key string)
+	GetRequestContextId(key string) string
 	PrintInfo(ctx context.Context, c *gin.Context, v any)
 	PrintError(ctx context.Context, c *gin.Context, v any, shutdown bool)
 	logError(ctx context.Context, c *gin.Context, v any)
@@ -18,10 +18,10 @@ type CustomLog interface {
 }
 
 type customLog struct {
-	h CustomsHash
+	h CustomHash
 }
 
-func NewCustomLog(h CustomsHash) *customLog {
+func NewCustomLog(h CustomHash) *customLog {
 	return &customLog{h: h}
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 // CustomHash is an interface for create customs hashes and indentifiers
-type CustomsHash interface {
+type CustomHash interface {
 	GenerateHashPassword(password string) string
 	CheckHashPassword(hash, password string) bool
 	NewUUIDString() string
