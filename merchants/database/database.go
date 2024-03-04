@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ffalconesmera/payments-platform/merchants/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -16,11 +17,12 @@ type Database interface {
 }
 
 type databaseConnection struct {
-	db *gorm.DB
+	db     *gorm.DB
+	config config.Config
 }
 
-func NewDatabaseConnection() *databaseConnection {
-	return &databaseConnection{}
+func NewDatabaseConnection(config config.Config) *databaseConnection {
+	return &databaseConnection{config: config}
 }
 
 // GetDatabase: return instance of gorm.DB
@@ -29,14 +31,14 @@ func (db *databaseConnection) GetDatabase() *gorm.DB {
 }
 
 // InitDatabase: initialize database connection
-func (d *databaseConnection) InitDatabase(host, port, dbName, user, password string) {
+func (d *databaseConnection) InitDatabase() {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
-		host,
-		port,
-		dbName,
-		user,
-		password,
+		d.config.GetDatabaseHost(),
+		d.config.GetDatabasePort(),
+		d.config.GetDatabaseName(),
+		d.config.GetDatabaseUser(),
+		d.config.GetDatabasePassword(),
 	)
 
 	log.Println("connecting with database..")

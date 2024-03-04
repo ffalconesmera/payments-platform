@@ -12,12 +12,16 @@ import (
 // Config is an interface for get environment vars
 type Config interface {
 	InitConfig()
+	GetDatabaseHost() string
+	GetDatabasePort() string
+	GetDatabaseName() string
+	GetDatabaseUser() string
+	GetDatabasePassword() string
 	GetJWTExpiration() int64
 	GetJWTSecretKey() string
 }
 
-type configImpl struct {
-}
+type configImpl struct{}
 
 func NewConfig() *configImpl {
 	return &configImpl{}
@@ -31,6 +35,26 @@ func (c *configImpl) InitConfig() {
 	}
 
 	log.Println(".env load successful")
+}
+
+func (c *configImpl) GetDatabaseHost() string {
+	return os.Getenv("DB_HOST")
+}
+
+func (c *configImpl) GetDatabasePort() string {
+	return os.Getenv("DB_PORT")
+}
+
+func (c *configImpl) GetDatabaseName() string {
+	return os.Getenv("DB_NAME")
+}
+
+func (c *configImpl) GetDatabaseUser() string {
+	return os.Getenv("DB_USER")
+}
+
+func (c *configImpl) GetDatabasePassword() string {
+	return os.Getenv("DB_PASSWORD")
 }
 
 func (c *configImpl) GetJWTExpiration() int64 {
