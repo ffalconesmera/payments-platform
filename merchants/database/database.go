@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Database is an interface manage connections with database
+// Database: is an interface manage connections with database
 type Database interface {
 	GetDatabase() *gorm.DB
 	InitDatabase(host, port, dbName, user, password string)
@@ -23,10 +23,12 @@ func NewDatabaseConnection() *databaseConnection {
 	return &databaseConnection{}
 }
 
+// GetDatabase: return instance of gorm.DB
 func (db *databaseConnection) GetDatabase() *gorm.DB {
 	return db.db
 }
 
+// InitDatabase: initialize database connection
 func (d *databaseConnection) InitDatabase(host, port, dbName, user, password string) {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
@@ -49,6 +51,7 @@ func (d *databaseConnection) InitDatabase(host, port, dbName, user, password str
 	d.db = db
 }
 
+// Close: close database connection
 func (d *databaseConnection) Close() {
 	log.Println("closing database connection..")
 
