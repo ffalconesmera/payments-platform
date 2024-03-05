@@ -22,7 +22,7 @@ func NewBankRepository() BankRepository {
 }
 
 // ProcessPayment: send an order of charge to the bank
-func (m *bankRepositoryImpl) ProcessPayment(paymentCode string) (*dto.BankPayment, error) {
+func (c *bankRepositoryImpl) ProcessPayment(paymentCode string) (*dto.BankPayment, error) {
 	var bankPayment dto.BankPayment
 	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.GetMerchantEndpoint(), paymentCode), "GET", "", &bankPayment)
 
@@ -33,7 +33,7 @@ func (m *bankRepositoryImpl) ProcessPayment(paymentCode string) (*dto.BankPaymen
 	return &bankPayment, nil
 }
 
-func (m *bankRepositoryImpl) ProcessRefund(paymentCode string) (*dto.BankRefund, error) {
+func (c *bankRepositoryImpl) ProcessRefund(paymentCode string) (*dto.BankRefund, error) {
 	var bankRefund dto.BankRefund
 	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.GetMerchantEndpoint(), paymentCode), "GET", "", &bankRefund)
 

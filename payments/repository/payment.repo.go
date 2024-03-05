@@ -33,13 +33,13 @@ func (c *paymentRepositoryImpl) FindPaymentByCode(ctxt context.Context, paymentC
 
 // CreatePayment: store a new payment
 func (c *paymentRepositoryImpl) CreatePayment(ctxt context.Context, refund *model.PayTransaction) error {
-	err := c.db.Create(&refund)
+	err := c.db.WithContext(ctxt).Create(&refund)
 	return err.Error
 }
 
 // SavePayment: update a payment
 func (c *paymentRepositoryImpl) SavePayment(ctxt context.Context, payment *model.PayTransaction) error {
 	wherePayment := model.PayTransaction{UUID: payment.UUID}
-	err := c.db.Where(wherePayment).Save(&payment)
+	err := c.db.WithContext(ctxt).Where(wherePayment).Save(&payment)
 	return err.Error
 }

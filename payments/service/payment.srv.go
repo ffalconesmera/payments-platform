@@ -70,13 +70,13 @@ func (cp *paymentServiceImpl) CheckoutPayment(ctxt context.Context, c *gin.Conte
 
 	helpers.PrintInfo(ctxt, c, "validating merchant data..")
 
-	if helpers.CustomValidation().InvalidFloat(payment.Amount) {
+	if helpers.InvalidFloat(payment.Amount) {
 		helpers.PrintError(ctxt, c, "amount could not be zero", false)
 		helpers.JsonFail(c, http.StatusBadRequest, "amount could not be zero")
 		return
 	}
 
-	if helpers.CustomValidation().EmptyString(payment.Description) {
+	if helpers.EmptyString(payment.Description) {
 		helpers.PrintError(ctxt, c, "description could not be empty", false)
 		helpers.JsonFail(c, http.StatusBadRequest, "description could not be empty")
 		return
@@ -91,25 +91,25 @@ func (cp *paymentServiceImpl) CheckoutPayment(ctxt context.Context, c *gin.Conte
 	}
 
 	helpers.PrintInfo(ctxt, c, "validating customer data..")
-	if helpers.CustomValidation().EmptyString(payment.Customer.DNI) {
+	if helpers.EmptyString(payment.Customer.DNI) {
 		helpers.PrintError(ctxt, c, "customer dni could not be empty", false)
 		helpers.JsonFail(c, http.StatusBadRequest, "customer dni could not be empty")
 		return
 	}
 
-	if helpers.CustomValidation().EmptyString(payment.Customer.Name) {
+	if helpers.EmptyString(payment.Customer.Name) {
 		helpers.PrintError(ctxt, c, "customer name could not be empty", false)
 		helpers.JsonFail(c, http.StatusBadRequest, "customer name could not be empty")
 		return
 	}
 
-	if helpers.CustomValidation().EmptyString(payment.Customer.Email) {
+	if helpers.EmptyString(payment.Customer.Email) {
 		helpers.PrintError(ctxt, c, "customer email could not be empty", false)
 		helpers.JsonFail(c, http.StatusBadRequest, "customer email could not be empty")
 		return
 	}
 
-	if helpers.CustomValidation().EmptyString(payment.Customer.Phone) {
+	if helpers.EmptyString(payment.Customer.Phone) {
 		helpers.PrintError(ctxt, c, "customer phone could not be empty", false)
 		helpers.JsonFail(c, http.StatusBadRequest, "customer phone could not be empty")
 		return

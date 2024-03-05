@@ -34,22 +34,22 @@ func NewPaymentController(paymentService *service.PaymentService) PaymentControl
 	}
 }
 
-func (p paymentControllerImpl) CheckoutPayment(c *gin.Context) {
+func (cp paymentControllerImpl) CheckoutPayment(c *gin.Context) {
 	checkoutCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
-	p.paymentService.CheckoutPayment(checkoutCtx, c)
+	cp.paymentService.CheckoutPayment(checkoutCtx, c)
 }
 
-func (p paymentControllerImpl) ProcessPayment(c *gin.Context) {
+func (cp paymentControllerImpl) ProcessPayment(c *gin.Context) {
 	processCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
-	p.paymentService.ProcessPayment(processCtx, c)
+	cp.paymentService.ProcessPayment(processCtx, c)
 }
 
-func (p paymentControllerImpl) RefundPayment(c *gin.Context) {
+func (cp paymentControllerImpl) RefundPayment(c *gin.Context) {
 	refundCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
-	p.paymentService.RefundPayment(refundCtx, c)
+	cp.paymentService.RefundPayment(refundCtx, c)
 }
 
-func (p paymentControllerImpl) CheckPayment(c *gin.Context) {
+func (cp paymentControllerImpl) CheckPayment(c *gin.Context) {
 	checkPaymentCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
-	p.paymentService.CheckPayment(checkPaymentCtx, c)
+	cp.paymentService.CheckPayment(checkPaymentCtx, c)
 }
