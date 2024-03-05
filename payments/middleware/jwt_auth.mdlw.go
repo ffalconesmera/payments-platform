@@ -18,6 +18,8 @@ func JWTokenMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		log.Println(tokenString)
+
 		tokenString = tokenString[len("Bearer "):]
 
 		ok, err := helpers.CheckJWToken(tokenString)

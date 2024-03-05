@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/ffalconesmera/payments-platform/payments/config"
+	ext_dto "github.com/ffalconesmera/payments-platform/payments/externals/dto"
 	ext_repository "github.com/ffalconesmera/payments-platform/payments/externals/repository"
 	"github.com/ffalconesmera/payments-platform/payments/helpers"
 	"github.com/ffalconesmera/payments-platform/payments/model"
@@ -198,7 +200,24 @@ func (cp paymentServiceImpl) ProcessPayment(ctxt context.Context, c *gin.Context
 		return
 	}
 
-	bankResp, err := cp.bankRepository.ProcessPayment(paymentCode)
+	helpers.PrintInfo(ctxt, c, "mapping card data..")
+	var bankCardInput *ext_dto.BankCardInput
+	if err := c.ShouldBindJSON(&bankCardInput); err != nil {
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error mapping payment information. Error: %s", err.Error()), false)
+		helpers.JsonFail(c, http.StatusBadRequest, "could not process payment. bad request")
+		return
+	}
+
+	bankCardInput.PaymentReference = paymentCode
+
+	bankJSON, err := json.Marshal(bankCardInput)
+	if err != nil {
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error parsing json payment information. Error: %s", err.Error()), false)
+		helpers.JsonFail(c, http.StatusBadRequest, "could not process payment. bad request")
+		return
+	}
+
+	bankResp, err := cp.bankRepository.ProcessPayment(paymentCode, string(bankJSON))
 	if err != nil {
 		helpers.PrintError(ctxt, c, fmt.Sprintf("payment could not be processed. Error: %s.", err.Error()), false)
 		helpers.PrintError(ctxt, c, err, false)
@@ -267,8 +286,23 @@ func (cp paymentServiceImpl) RefundPayment(ctxt context.Context, c *gin.Context)
 		return
 	}
 
+	var refundInput *ext_dto.RefundInput
+	if err := c.ShouldBindJSON(&refundInput); err != nil {
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error parsing json refund information. Error: %s", err.Error()), false)
+		helpers.JsonFail(c, http.StatusBadRequest, "could not process refund. bad request")
+	}
+
+	refundInput.PaymentReference = paymentCode
+
+	refundJSON, err := json.Marshal(refundInput)
+	if err != nil {
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error parsing json refund information. Error: %s", err.Error()), false)
+		helpers.JsonFail(c, http.StatusBadRequest, "could not process refund. bad request")
+		return
+	}
+
 	helpers.PrintInfo(ctxt, c, "processing refund data..")
-	bankResp, err := cp.bankRepository.ProcessRefund(paymentCode)
+	bankResp, err := cp.bankRepository.ProcessRefund(paymentCode, string(refundJSON))
 	if err != nil {
 		helpers.PrintError(ctxt, c, fmt.Sprintf("refund could not be processed process. Error: %s.", err.Error()), false)
 		helpers.JsonFail(c, http.StatusInternalServerError, "refund could not be processed")
