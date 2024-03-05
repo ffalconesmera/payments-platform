@@ -331,6 +331,7 @@ Api proxy for process a charge with the bank.
   }
   ```
 
+
   ##### HTTP Code 400
   Missing Information.
 
@@ -373,6 +374,12 @@ Api proxy for process a refund with the bank.
 <details>
   <summary><code>POST</code> <code><b>/api/v1/payments/refunds/{payment_code}</b></code></summary>
 
+  #### Headers
+
+  > | name            |  type     | description                                   |
+  > |-----------------|-----------|-------------------------|-----------------------------------|
+  > | Authorization   |  required | Bearer token_sample   |
+
   #### Parameters
 
   > | name            |  type     | data type   | description                                   |
@@ -389,25 +396,15 @@ Api proxy for process a refund with the bank.
 
   ##### HTTP Code 200
 
-  Succesful payment checkout
+  Succesful refunded checkout
 
   ```json
   {
     "data": {
-        "payment_code": "245592bc-ee36-4ff6-a919-3bc731584db4",
-        "amount": 50.75,
-        "description": "Sample payment",
-        "currency": "USD",
-        "status": "pending",
-        "natural_expiration_process": "2024-03-05 13:24:17",
-        "bank_name": "simulator",
-        "customer": {
-            "dni": "123456",
-            "name": "FSample Customer",
-            "email": "customer@email.com",
-            "phone": "213213",
-            "address": ""
-        }
+        "status": "refunded",
+        "code": 1000,
+        "message": "refunded processed successullfy",
+        "reference": "aba14e54-3738-411b-81ed-be249ea7d2f2"
     },
     "status": "ok"
 }
@@ -443,7 +440,7 @@ Api proxy for process a refund with the bank.
   ```
 
   ##### HTTP Code 409
-  Payment is already processed, refunded o failed.
+  Payment is already refunded, pendig o failed.
 
   ```json
   {
@@ -467,277 +464,57 @@ Api proxy for process a refund with the bank.
 
 
 
-
-
 ### Query payment
 
+Get payment information.
 <details>
- <summary><code>GET</code> <code><b>/{transaction_id}</b></code> <code>(Queries a payment given its transaction_id)</code></summary>
+  <summary><code>GET</code> <code><b>/api/v1/payments/{payment_code}</b></code></summary>
 
-#### Parameters
+  #### Headers
 
-> | name            |  type     | data type               | description                                              |
-> |-----------------|-----------|-------------------------|----------------------------------------------------------|
-> | id              |  required | string (path parameter) | Identifier to the given transaction_id                    |
+  > | name            |  type     | description                                   |
+  > |-----------------|-----------|-------------------------|-----------------------------------|
+  > | Authorization   |  required | Bearer token_sample   |
 
-#### Responses
+  #### Responses
 
-##### HTTP Code 200
+  ##### HTTP Code 200
 
-```json
-{
-  "transaction_id": "TXN_01HP06ZRSNFDPKN3ZBSWS4Z0KT",
-  "status": "succeeded",
-  "description": "Sample transaction",
-  "payment_provider": "stripe",
-  "amount": 2000,
-  "currency": "eur",
-  "type": "charge",
-  "additional_fields": {
-      "charge_id": "ch_3OgwgvGVGHB8I6rc1Etj264n",
-      "payment_intent_id": "pi_3OgwgvGVGHB8I6rc1ZC8RNGK"
+  Payment found
+
+  ```json
+  {
+    "data": {
+        "payment_code": "245592bc-ee36-4ff6-a919-3bc731584db4",
+        "amount": 50.75,
+        "description": "Sample payment description",
+        "currency": "USD",
+        "status": "succedeed",
+        "natural_expiration_process": "2024-03-05 13:24:17",
+        "failure_reason": "",
+        "bank_reference": "aba14e54-3738-411b-81ed-be249ea7d2f2",
+        "bank_name": "simulator"
+    },
+    "status": "ok"
+}
+  ```
+
+  ##### HTTP Code 404
+  Payment not found.
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "payment not found"
   }
-}
-```
+  ```
 
-##### HTTP Code 400
+  ##### HTTP Code 500
 
-```json
-{
-  "code": "resource_not_found",
-  "status_code": 404,
-  "message": "Resource 'transaction' not found"
-}
-```
-
-##### HTTP Code 500
-
-```json
-{
-  "code": "invalid_server_error",
-  "status_code": 500,
-  "message": "Internal server error"
-}
-```
-
-</details>
-
-### Refund payment
-
-**Disclaimer**: When a payment is refunded its initial status is intentionally set to `pending`. In order to mock use case where it takes X amount of time to charge a payment. Therefore, the final status will be given by the event received by webhooks.
-
-<details>
- <summary><code>POST</code> <code><b>/{transaction_id}</b></code> <code>(Refunds a payment given its transaction_id)</code></summary>
-
-#### Parameters
-
-> | name            |  type     | data type               | description                                              |
-> |-----------------|-----------|-------------------------|----------------------------------------------------------|
-> | id              |  required | string (path parameter) | Identifier to the given transaction_id                    |
-
-#### Responses
-
-##### HTTP Code 200
-
-Succesful refund 
-
-```json
-{
-  "transaction_id": "TXN_01HP06ZRSNFDPKN3ZBSWS4Z0KT",
-  "status": "pending",
-  "description": "Sample transaction",
-  "payment_provider": "stripe",
-  "amount": 2000,
-  "currency": "eur",
-  "type": "refund",
-  "additional_fields": {
-      "charge_id": "ch_3OgwgvGVGHB8I6rc1Etj264n",
-      "payment_intent_id": "pi_3OgwgvGVGHB8I6rc1ZC8RNGK",
-      "refund_id": "re_3OgwgvGVGHB8I6rc1rBOb2uO"
+  ```json
+  {
+    "status_code": "failed",
+    "message": "message description"
   }
-}
-```
-
-##### HTTP Code 400
-
-```json
-{
-  "code": "invalid_request",
-  "status_code": 400,
-  "message": "Invalid request: charge already refunded"
-}
-```
-
-##### HTTP Code 500
-
-```json
-{
-  "code": "invalid_server_error",
-  "status_code": 500,
-  "message": "Internal server error"
-}
-```
-
+  ```
 </details>
-
-## Online Payment Webhooks
-
-### Ping
-
-<details>
- <summary><code>GET</code> <code><b>/</b></code> <code>(Checks if the service is healthy)</code></summary>
-
-#### Parameters
-
-> None
-
-#### Responses
-
-##### HTTP Code 200
-
-```json
-Hello World!
-```
-
-</details>
-
-
-
-
-
-
-
-### Query payment
-
-<details>
- <summary><code>GET</code> <code><b>/{transaction_id}</b></code> <code>(Queries a payment given its transaction_id)</code></summary>
-
-#### Parameters
-
-> | name            |  type     | data type               | description                                              |
-> |-----------------|-----------|-------------------------|----------------------------------------------------------|
-> | id              |  required | string (path parameter) | Identifier to the given transaction_id                    |
-
-#### Responses
-
-##### HTTP Code 200
-
-```json
-{
-  "transaction_id": "TXN_01HP06ZRSNFDPKN3ZBSWS4Z0KT",
-  "status": "succeeded",
-  "description": "Sample transaction",
-  "payment_provider": "stripe",
-  "amount": 2000,
-  "currency": "eur",
-  "type": "charge",
-  "additional_fields": {
-      "charge_id": "ch_3OgwgvGVGHB8I6rc1Etj264n",
-      "payment_intent_id": "pi_3OgwgvGVGHB8I6rc1ZC8RNGK"
-  }
-}
-```
-
-##### HTTP Code 400
-
-```json
-{
-  "code": "resource_not_found",
-  "status_code": 404,
-  "message": "Resource 'transaction' not found"
-}
-```
-
-##### HTTP Code 500
-
-```json
-{
-  "code": "invalid_server_error",
-  "status_code": 500,
-  "message": "Internal server error"
-}
-```
-
-</details>
-
-### Refund payment
-
-**Disclaimer**: When a payment is refunded its initial status is intentionally set to `pending`. In order to mock use case where it takes X amount of time to charge a payment. Therefore, the final status will be given by the event received by webhooks.
-
-<details>
- <summary><code>POST</code> <code><b>/{transaction_id}</b></code> <code>(Refunds a payment given its transaction_id)</code></summary>
-
-#### Parameters
-
-> | name            |  type     | data type               | description                                              |
-> |-----------------|-----------|-------------------------|----------------------------------------------------------|
-> | id              |  required | string (path parameter) | Identifier to the given transaction_id                    |
-
-#### Responses
-
-##### HTTP Code 200
-
-Succesful refund 
-
-```json
-{
-  "transaction_id": "TXN_01HP06ZRSNFDPKN3ZBSWS4Z0KT",
-  "status": "pending",
-  "description": "Sample transaction",
-  "payment_provider": "stripe",
-  "amount": 2000,
-  "currency": "eur",
-  "type": "refund",
-  "additional_fields": {
-      "charge_id": "ch_3OgwgvGVGHB8I6rc1Etj264n",
-      "payment_intent_id": "pi_3OgwgvGVGHB8I6rc1ZC8RNGK",
-      "refund_id": "re_3OgwgvGVGHB8I6rc1rBOb2uO"
-  }
-}
-```
-
-##### HTTP Code 400
-
-```json
-{
-  "code": "invalid_request",
-  "status_code": 400,
-  "message": "Invalid request: charge already refunded"
-}
-```
-
-##### HTTP Code 500
-
-```json
-{
-  "code": "invalid_server_error",
-  "status_code": 500,
-  "message": "Internal server error"
-}
-```
-
-</details>
-
-## Online Payment Webhooks
-
-### Ping
-
-<details>
- <summary><code>GET</code> <code><b>/</b></code> <code>(Checks if the service is healthy)</code></summary>
-
-#### Parameters
-
-> None
-
-#### Responses
-
-##### HTTP Code 200
-
-```json
-Hello World!
-```
-
-</details>
-
-
-
