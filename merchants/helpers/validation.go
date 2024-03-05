@@ -22,39 +22,21 @@ func NewCustomValidation() *customValidation {
 }
 
 func (c *customValidation) InvalidFloat(f float64) bool {
-	if f <= 0 {
-		return true
-	}
-
-	return false
+	return f <= 0
 }
 
 func (c *customValidation) EmptyString(s string) bool {
-	if strings.Trim(s, " ") == "" {
-		return true
-	}
-
-	return false
+	return strings.Trim(s, " ") == ""
 }
 
 func (c *customValidation) DateInvalid(s string) bool {
 	_, err := time.Parse("2006-01-02", s)
-
-	if err != nil {
-		return true
-	}
-
-	return false
+	return err != nil
 }
 
 func (c *customValidation) DateTimeInvalid(s string) bool {
 	_, err := time.Parse("2006-01-02 15:04:05", s)
-
-	if err != nil {
-		return true
-	}
-
-	return false
+	return err != nil
 }
 
 func (c *customValidation) PasswordInvalid(s string) bool {

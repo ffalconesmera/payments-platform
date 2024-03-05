@@ -41,7 +41,7 @@ func (m *merchantRepositoryImpl) FindMerchantByCode(merchantCode string) (*model
 }
 
 // CreateMerchant: store a new merchant
-func (m *merchantRepositoryImpl) CreateMerchant(user *model.PayMerchant) error {
-	err := m.db.GetDatabase().Create(&user)
+func (m *merchantRepositoryImpl) CreateMerchant(merchant *model.PayMerchant) error {
+	err := m.db.GetDatabase().Create(&merchant)
 	return err.Error
 }
