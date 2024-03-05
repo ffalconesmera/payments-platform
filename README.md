@@ -38,7 +38,7 @@ In case you are interested in local development, follow these steps to install P
 
 1. Install PostgreSQL [here](https://www.postgresql.org/download/), depending on your OS.
 2. Access PostgreSQL through the terminal using the default user: `psql postgres`.
-3. Create the database for the platform and access it:
+3. Create the databases for the platform and access it:
 
 ```sql
 CREATE DATABASE payments_transactions;
