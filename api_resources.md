@@ -98,6 +98,8 @@ Allows to register a new merchant for payments processing.
   ```
 </details>
 
+### Sing Up
+
 Return token for refund and query payments.
 <details>
   <summary><code>POST</code> <code><b>/api/v1/merchants/login</b></code></summary>
