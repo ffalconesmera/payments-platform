@@ -1,5 +1,7 @@
 # API resources
 
+All endpoints must have `/Content-Type` header with `application/json` value.
+
 ## Merchants API
 
 ### Ping
@@ -21,7 +23,7 @@ Welcome to merchant api..!!
 
 </details>
 
-All endpoints must have `/Content-Type` header with `application/json` value.
+
 
 ### Sing Up
 
@@ -167,6 +169,131 @@ Return token for refund and query payments.
   ```
 </details>
 
+
+## Payments API
+
+### Ping
+
+<details>
+  <summary><code>GET</code> <code><b>/running</b></code> <code>(Checks if the service is healthy)</code></summary>
+
+  #### Parameters
+
+  > None
+
+  #### Responses
+
+  ##### HTTP Code 200
+
+  ```json
+  Welcome to payments api..!!
+  ```
+</details>
+
+
+
+
+### Create a payment order
+
+Return payment order information for process charges and refunds.
+<details>
+  <summary><code>POST</code> <code><b>/api/v1/payments/checkouts/{merchant_code}</b></code></summary>
+
+  #### Parameters
+
+  > | name            |  type     | data type   | description                                   |
+  > |-----------------|-----------|-------------------------|-----------------------------------|
+  > | amount   |  required | numeric      | Amount to perform a payment   |
+  > | description   |  required | string      | Description of payment                                 |
+  > | currency   |  required | string      | Currency to perform a payment                                |
+  > | customer.dni   |  required | string      | Dni of customer                                |
+  > | customer.name   |  required | string      | Name of customer                                |
+  > | customer.email   |  required | string      | Email of customer                                |
+  > | customer.phone   |  required | string      | Phone of customer                                |
+  > | customer.address   |  optional | string      | Address of customer                                |
+
+  ```json
+  {
+    "amount": 15.75,
+    "description": "Sample payment",
+    "currency": "USD",
+    "customer": {
+        "dni": "123456",
+        "name": "Sample Customer",
+        "email": "customer@email.com",
+        "phone": "213213",
+        "address": ""
+    }
+}
+  ```
+
+  #### Responses
+
+  ##### HTTP Code 200
+
+  Succesful payment checkout
+
+  ```json
+  {
+    "data": {
+        "payment_code": "245592bc-ee36-4ff6-a919-3bc731584db4",
+        "amount": 50.75,
+        "description": "Sample payment",
+        "currency": "USD",
+        "status": "pending",
+        "natural_expiration_process": "2024-03-05 13:24:17",
+        "bank_name": "simulator",
+        "customer": {
+            "dni": "123456",
+            "name": "FSample Customer",
+            "email": "customer@email.com",
+            "phone": "213213",
+            "address": ""
+        }
+    },
+    "status": "ok"
+}
+  ```
+  ##### HTTP Code 400
+  Bad request. Sent information are incorrect.
+
+  ```json
+  {
+    "status": "failed",
+    "message": "data sent is invalid"
+  }
+  ```
+
+  ##### HTTP Code 400
+  Missing Information.
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "message description"
+  }
+  ```
+
+  ##### HTTP Code 500
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "message description"
+  }
+  ```
+</details>
+
+
+
+
+
+
+
+
+
+
+
 ### Query payment
 
 <details>
@@ -298,3 +425,6 @@ Hello World!
 ```
 
 </details>
+
+
+
