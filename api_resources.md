@@ -286,66 +286,37 @@ Return payment order information for process charges and refunds.
 
 
 
+### Charge payment
 
-
-
-### Create a payment order
-
-Return payment order information for process charges and refunds.
+Api proxy for process a charge with the bank.
 <details>
-  <summary><code>POST</code> <code><b>/api/v1/payments/checkouts/{merchant_code}</b></code></summary>
+  <summary><code>POST</code> <code><b>/api/v1/payments/process/{payment_code}</b></code></summary>
 
   #### Parameters
 
   > | name            |  type     | data type   | description                                   |
   > |-----------------|-----------|-------------------------|-----------------------------------|
-  > | amount   |  required | numeric      | Amount to perform a payment   |
-  > | description   |  required | string      | Description of payment                                 |
-  > | currency   |  required | string      | Currency to perform a payment                                |
-  > | customer.dni   |  required | string      | Dni of customer                                |
-  > | customer.name   |  required | string      | Name of customer                                |
-  > | customer.email   |  required | string      | Email of customer                                |
-  > | customer.phone   |  required | string      | Phone of customer                                |
-  > | customer.address   |  optional | string      | Address of customer                                |
+  > | card_number   |  required | string      | Customer credit card. Simulator accept: card_success, card_insufficient_founds, card_incorrect, card_bad_request, card_server_error   |
 
   ```json
   {
-    "amount": 15.75,
-    "description": "Sample payment",
-    "currency": "USD",
-    "customer": {
-        "dni": "123456",
-        "name": "Sample Customer",
-        "email": "customer@email.com",
-        "phone": "213213",
-        "address": ""
-    }
-}
+    "card_number": "card_success"
+  }
   ```
 
   #### Responses
 
   ##### HTTP Code 200
 
-  Succesful payment checkout
+  Succesful payment charge
 
   ```json
   {
     "data": {
-        "payment_code": "245592bc-ee36-4ff6-a919-3bc731584db4",
-        "amount": 50.75,
-        "description": "Sample payment",
-        "currency": "USD",
-        "status": "pending",
-        "natural_expiration_process": "2024-03-05 13:24:17",
-        "bank_name": "simulator",
-        "customer": {
-            "dni": "123456",
-            "name": "FSample Customer",
-            "email": "customer@email.com",
-            "phone": "213213",
-            "address": ""
-        }
+        "status": "succeeded",
+        "code": 1000,
+        "message": "payment processed successullfy",
+        "reference": "aba14e54-3738-411b-81ed-be249ea7d2f2"
     },
     "status": "ok"
 }
@@ -370,6 +341,16 @@ Return payment order information for process charges and refunds.
   }
   ```
 
+  ##### HTTP Code 409
+  Payment is already processed, refunded o failed.
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "could not process. payment is status."
+  }
+  ```
+
   ##### HTTP Code 500
 
   ```json
@@ -382,17 +363,21 @@ Return payment order information for process charges and refunds.
 
 
 
-### Process charge payment
 
-Api proxy for process a charge with the bank.
+
+
+
+### Refund payment
+
+Api proxy for process a refund with the bank.
 <details>
-  <summary><code>POST</code> <code><b>/api/v1/payments/process/{payment_code}</b></code></summary>
+  <summary><code>POST</code> <code><b>/api/v1/payments/refunds/{payment_code}</b></code></summary>
 
   #### Parameters
 
   > | name            |  type     | data type   | description                                   |
   > |-----------------|-----------|-------------------------|-----------------------------------|
-  > | card_number   |  required | string      | Customer credit card. Simulator accept: card_success, card_insufficient_founds, card_incorrect, card_bad_request, card_server_error   |
+  > | refund_case   |  required | string      | Configurate the responses of bank simulator. Accept: refund_success, refund_already_refunded, refund_incorrect, refund_bad_request, refund_server_error   |
 
   ```json
   {
@@ -438,12 +423,32 @@ Api proxy for process a charge with the bank.
   ```
 
   ##### HTTP Code 400
+  Bad request. Sent information are incorrect.
+
+  ```json
+  {
+    "status": "failed",
+    "message": "data sent is invalid"
+  }
+  ```
+
+  ##### HTTP Code 400
   Missing Information.
 
   ```json
   {
     "status_code": "failed",
     "message": "message description"
+  }
+  ```
+
+  ##### HTTP Code 409
+  Payment is already processed, refunded o failed.
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "could not process. payment is status."
   }
   ```
 
@@ -456,8 +461,6 @@ Api proxy for process a charge with the bank.
   }
   ```
 </details>
-
-
 
 
 
