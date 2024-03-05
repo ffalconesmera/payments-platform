@@ -419,6 +419,16 @@ Api proxy for process a refund with the bank.
   }
   ```
 
+  ##### HTTP Code 401
+  Unauthorized.
+
+  ```json
+  {
+    "status": "failed",
+    "message": "token invalid"
+  }
+  ```
+
   ##### HTTP Code 400
   Bad request. Sent information are incorrect.
 
