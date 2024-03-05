@@ -31,7 +31,6 @@ Follow these instructions in order to be able to run the project locally or thro
 #### Docker & Docker Compose
 
 1. Follow the instructions found in the [official docs](https://docs.docker.com/get-docker/) to install Docker.
-2. After installing Docker, follow the steps found in the [official docs](https://docs.docker.com/compose/install/) to install Docker Compose.
 
 #### PostgreSQL (Optional)
 
