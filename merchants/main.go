@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/ffalconesmera/payments-platform/merchants/config"
@@ -11,7 +10,6 @@ import (
 	"github.com/ffalconesmera/payments-platform/merchants/repository"
 	"github.com/ffalconesmera/payments-platform/merchants/routes"
 	"github.com/ffalconesmera/payments-platform/merchants/service"
-	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,18 +17,12 @@ func main() {
 	log.Println("initializating merchant api..")
 	ctx := context.Background()
 
-	log.Println("reading variables environment..")
-	err := godotenv.Load()
-	if err != nil {
-		panic(fmt.Sprintf("failed to load .env file: %s", err.Error()))
-	}
+	log.Println("read enviroment config..")
+	config.Config().InitConfig()
 
 	log.Println("set up http logger..")
 	logrus.SetLevel(logrus.InfoLevel)
 	logrus.SetFormatter(&logrus.JSONFormatter{})
-
-	log.Println("read enviroment config..")
-	config.Config().InitConfig()
 
 	db := database.NewDatabaseConnection()
 	db.InitDatabase(config.Config().GetDatabaseHost(), config.Config().GetDatabasePort(), config.Config().GetDatabaseName(), config.Config().GetDatabaseUser(), config.Config().GetDatabasePassword())
