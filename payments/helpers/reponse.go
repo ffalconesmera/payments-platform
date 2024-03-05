@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// JsonResponse is a singleton for structure http responses
 type jsonResponse struct{}
 
 var jsonRes *jsonResponse

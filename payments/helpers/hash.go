@@ -6,8 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// CustomHash is an interface for create customs hashes and indentifiers
-
+// CustomHash is a singleton for create customs hashes and indentifiers
 type customHash struct{}
 
 var hash *customHash

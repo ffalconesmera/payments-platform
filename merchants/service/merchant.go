@@ -20,18 +20,12 @@ type MerchantService interface {
 }
 
 type merchantServiceImpl struct {
-	log                helpers.CustomLog
-	validation         helpers.CustomValidation
-	hash               helpers.CustomHash
 	userRepository     repository.UserRepository
 	merchantRepository repository.MerchantRepository
 }
 
-func NewMerchantService(log helpers.CustomLog, validation helpers.CustomValidation, hash helpers.CustomHash, userRepository repository.UserRepository, merchantRepository repository.MerchantRepository) *merchantServiceImpl {
+func NewMerchantService(userRepository repository.UserRepository, merchantRepository repository.MerchantRepository) *merchantServiceImpl {
 	return &merchantServiceImpl{
-		log:                log,
-		validation:         validation,
-		hash:               hash,
 		userRepository:     userRepository,
 		merchantRepository: merchantRepository,
 	}
@@ -39,72 +33,70 @@ func NewMerchantService(log helpers.CustomLog, validation helpers.CustomValidati
 
 // SingUp: register a new merchant
 func (m *merchantServiceImpl) SingUp(ctx context.Context, c *gin.Context) {
-	m.log.PrintInfo(ctx, c, "start to execute sing up method..")
+	helpers.CustomLog().PrintInfo(ctx, c, "start to execute sing up method..")
 
-	response := helpers.NewJsonResponse()
-
-	m.log.PrintInfo(ctx, c, "mapping merchant data..")
+	helpers.CustomLog().PrintInfo(ctx, c, "mapping merchant data..")
 	var merchant dto.Merchant
 	if err := c.ShouldBindJSON(&merchant); err != nil {
-		m.log.PrintError(ctx, c, fmt.Sprintf("error mapping merchant information. Error: %s", err), false)
-		response.JsonFail(c, http.StatusBadRequest, "data sent is invalid")
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error mapping merchant information. Error: %s", err), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "data sent is invalid")
 		return
 	}
 
-	m.log.PrintInfo(ctx, c, "validating merchant data..")
-	if m.validation.EmptyString(merchant.Name) {
-		m.log.PrintError(ctx, c, "merchant name could not be empty", false)
-		response.JsonFail(c, http.StatusBadRequest, "merchant name could not be empty")
+	helpers.CustomLog().PrintInfo(ctx, c, "validating merchant data..")
+	if helpers.CustomValidation().EmptyString(merchant.Name) {
+		helpers.CustomLog().PrintError(ctx, c, "merchant name could not be empty", false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "merchant name could not be empty")
 		return
 	}
 
-	if m.validation.EmptyString(merchant.User.Username) {
-		m.log.PrintError(ctx, c, "username could not be empty", false)
-		response.JsonFail(c, http.StatusBadRequest, "username could not be empty")
+	if helpers.CustomValidation().EmptyString(merchant.User.Username) {
+		helpers.CustomLog().PrintError(ctx, c, "username could not be empty", false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "username could not be empty")
 		return
 	}
 
-	if m.validation.EmptyString(merchant.User.Email) {
-		m.log.PrintError(ctx, c, "email could not be empty", false)
-		response.JsonFail(c, http.StatusBadRequest, "email could not be empty")
+	if helpers.CustomValidation().EmptyString(merchant.User.Email) {
+		helpers.CustomLog().PrintError(ctx, c, "email could not be empty", false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "email could not be empty")
 		return
 	}
 
-	if m.validation.PasswordInvalid(merchant.User.Password) {
-		m.log.PrintError(ctx, c, m.validation.PasswordInvalidMessage(), false)
-		response.JsonFail(c, http.StatusBadRequest, m.validation.PasswordInvalidMessage())
+	if helpers.CustomValidation().PasswordInvalid(merchant.User.Password) {
+		helpers.CustomLog().PrintError(ctx, c, helpers.CustomValidation().PasswordInvalidMessage(), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, helpers.CustomValidation().PasswordInvalidMessage())
 		return
 	}
 
 	_, findUser, err := m.userRepository.FindUserByUsername(merchant.User.Username)
 
 	if err != nil {
-		m.log.PrintError(ctx, c, fmt.Sprintf("error finding user %s. Error: %s", merchant.User.Username, err.Error()), false)
-		response.JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding user %s.", merchant.User.Username))
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error finding user %s. Error: %s", merchant.User.Username, err.Error()), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding user %s.", merchant.User.Username))
 		return
 	}
 
 	if findUser {
-		m.log.PrintError(ctx, c, fmt.Sprintf("username %s is alreay exits.", merchant.User.Username), false)
-		response.JsonFail(c, http.StatusConflict, fmt.Sprintf("username %s is alreay exits", merchant.User.Username))
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("username %s is alreay exits.", merchant.User.Username), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusConflict, fmt.Sprintf("username %s is alreay exits", merchant.User.Username))
 		return
 	}
 
-	m.log.PrintInfo(ctx, c, "generating password hash..")
-	hash := m.hash.GenerateHashPassword(merchant.User.Password)
+	helpers.CustomLog().PrintInfo(ctx, c, "generating password hash..")
+	hash := helpers.CustomHash().GenerateHashPassword(merchant.User.Password)
 	password := hash
 
-	m.log.PrintInfo(ctx, c, "parsing dto data to merchant model..")
-	merchant.MerchantCode = m.hash.NewUUIDString()
+	helpers.CustomLog().PrintInfo(ctx, c, "parsing dto data to merchant model..")
+	merchant.MerchantCode = helpers.CustomHash().NewUUIDString()
 	merchantModel := model.PayMerchant{
-		UUID:         m.hash.NewUUIDString(),
+		UUID:         helpers.CustomHash().NewUUIDString(),
 		MerchantCode: merchant.MerchantCode,
 		Name:         merchant.Name,
 	}
 
-	m.log.PrintInfo(ctx, c, "parsing dto data to user model..")
+	helpers.CustomLog().PrintInfo(ctx, c, "parsing dto data to user model..")
 	userModel := model.PayUser{
-		UUID:         m.hash.NewUUIDString(),
+		UUID:         helpers.CustomHash().NewUUIDString(),
 		Username:     merchant.User.Username,
 		Email:        merchant.User.Email,
 		Password:     password,
@@ -113,23 +105,23 @@ func (m *merchantServiceImpl) SingUp(ctx context.Context, c *gin.Context) {
 
 	tx := m.merchantRepository.BeginTransaction()
 
-	m.log.PrintInfo(ctx, c, "saving merchant data..")
+	helpers.CustomLog().PrintInfo(ctx, c, "saving merchant data..")
 	errInsertMerchant := m.merchantRepository.CreateMerchant(&merchantModel)
 
 	if errInsertMerchant != nil {
 		m.merchantRepository.RollbackTransaction(tx)
-		m.log.PrintError(ctx, c, fmt.Sprintf("error saving merchant information. Error: %s", errInsertMerchant.Error()), false)
-		response.JsonFail(c, http.StatusInternalServerError, "error saving merchant information")
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error saving merchant information. Error: %s", errInsertMerchant.Error()), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error saving merchant information")
 		return
 	}
 
-	m.log.PrintInfo(ctx, c, "saving user data..")
+	helpers.CustomLog().PrintInfo(ctx, c, "saving user data..")
 	errUserMerchant := m.userRepository.CreateUser(&userModel)
 
 	if errUserMerchant != nil {
 		m.merchantRepository.RollbackTransaction(tx)
-		m.log.PrintError(ctx, c, fmt.Sprintf("error saving merchant information. Error: %s", errUserMerchant.Error()), false)
-		response.JsonFail(c, http.StatusInternalServerError, "error saving merchant information")
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error saving merchant information. Error: %s", errUserMerchant.Error()), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error saving merchant information")
 		return
 	}
 
@@ -137,64 +129,62 @@ func (m *merchantServiceImpl) SingUp(ctx context.Context, c *gin.Context) {
 
 	merchant.User.Password = ""
 
-	response.JsonSuccess(c, merchant)
-	m.log.PrintInfo(ctx, c, "execution of sing up finished.")
+	helpers.JsonResponse().JsonSuccess(c, merchant)
+	helpers.CustomLog().PrintInfo(ctx, c, "execution of sing up finished.")
 }
 
 // Login: generate a authorization token for access as merchant
 func (m *merchantServiceImpl) Login(ctx context.Context, c *gin.Context) {
-	m.log.PrintInfo(ctx, c, "start to execute login method..")
+	helpers.CustomLog().PrintInfo(ctx, c, "start to execute login method..")
 
-	response := helpers.NewJsonResponse()
-
-	m.log.PrintInfo(ctx, c, "mapping login data..")
+	helpers.CustomLog().PrintInfo(ctx, c, "mapping login data..")
 	var loginDTO dto.LoginInput
 	if err := c.ShouldBindJSON(&loginDTO); err != nil {
-		m.log.PrintError(ctx, c, fmt.Sprintf("error mapping merchant information. Error: %s", err), false)
-		response.JsonFail(c, http.StatusBadRequest, "data sent is invalid")
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error mapping merchant information. Error: %s", err), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "data sent is invalid")
 		return
 	}
 
-	m.log.PrintInfo(ctx, c, "validating login data..")
-	if m.validation.EmptyString(loginDTO.Username) {
-		m.log.PrintError(ctx, c, "username could not be empty", false)
-		response.JsonFail(c, http.StatusBadRequest, "username could not be empty")
+	helpers.CustomLog().PrintInfo(ctx, c, "validating login data..")
+	if helpers.CustomValidation().EmptyString(loginDTO.Username) {
+		helpers.CustomLog().PrintError(ctx, c, "username could not be empty", false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "username could not be empty")
 		return
 	}
 
-	if m.validation.EmptyString(loginDTO.Password) {
-		m.log.PrintError(ctx, c, "password could not be empty", false)
-		response.JsonFail(c, http.StatusBadRequest, "password could not be empty")
+	if helpers.CustomValidation().EmptyString(loginDTO.Password) {
+		helpers.CustomLog().PrintError(ctx, c, "password could not be empty", false)
+		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "password could not be empty")
 		return
 	}
 
-	m.log.PrintInfo(ctx, c, "finding user by username..")
+	helpers.CustomLog().PrintInfo(ctx, c, "finding user by username..")
 	user, findUser, err := m.userRepository.FindUserByUsername(loginDTO.Username)
 
 	if err != nil {
-		m.log.PrintError(ctx, c, fmt.Sprintf("error finding user %s. Error: %s", loginDTO.Username, err.Error()), false)
-		response.JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding user: %s", loginDTO.Username))
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error finding user %s. Error: %s", loginDTO.Username, err.Error()), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding user: %s", loginDTO.Username))
 		return
 	}
 
 	if !findUser {
-		m.log.PrintError(ctx, c, fmt.Sprintf("user %s not found.", loginDTO.Username), false)
-		response.JsonFail(c, http.StatusNotFound, fmt.Sprintf("user %s not found", loginDTO.Username))
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("user %s not found.", loginDTO.Username), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusNotFound, fmt.Sprintf("user %s not found", loginDTO.Username))
 		return
 	}
 
-	if !m.hash.CheckHashPassword(user.Password, loginDTO.Password) {
-		m.log.PrintError(ctx, c, fmt.Sprintf("password incorrect:  %s", loginDTO.Username), false)
-		response.JsonFail(c, http.StatusUnauthorized, "password incorrect")
+	if !helpers.CustomHash().CheckHashPassword(user.Password, loginDTO.Password) {
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("password incorrect:  %s", loginDTO.Username), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusUnauthorized, "password incorrect")
 		return
 	}
 
-	m.log.PrintInfo(ctx, c, "creating jwt")
+	helpers.CustomLog().PrintInfo(ctx, c, "creating jwt")
 
-	token, err := m.hash.CreateJWToken(user.Username)
+	token, err := helpers.CustomHash().CreateJWToken(user.Username)
 	if err != nil {
-		m.log.PrintError(ctx, c, fmt.Sprintf("error getting token:  %s. Error: %s", user.Username, err.Error()), false)
-		response.JsonFail(c, http.StatusInternalServerError, "error getting token")
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error generating token:  %s. Error: %s", user.Username, err.Error()), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error generating token")
 		return
 	}
 
@@ -204,29 +194,27 @@ func (m *merchantServiceImpl) Login(ctx context.Context, c *gin.Context) {
 		Token:    token,
 	}
 
-	response.JsonSuccess(c, loginOutput)
-	m.log.PrintInfo(ctx, c, fmt.Sprintf("user logged successfully: %s", loginDTO.Username))
+	helpers.JsonResponse().JsonSuccess(c, loginOutput)
+	helpers.CustomLog().PrintInfo(ctx, c, fmt.Sprintf("user logged successfully: %s", loginDTO.Username))
 }
 
 // FindMerchantByCode: retrieve merchant data from repository
 func (m *merchantServiceImpl) FindMerchantByCode(ctx context.Context, c *gin.Context) {
-	m.log.PrintInfo(ctx, c, "start to execute find merchant by code method..")
+	helpers.CustomLog().PrintInfo(ctx, c, "start to execute find merchant by code method..")
 
-	response := helpers.NewJsonResponse()
-
-	m.log.PrintInfo(ctx, c, "finding merchant by code..")
+	helpers.CustomLog().PrintInfo(ctx, c, "finding merchant by code..")
 	merchantCode := c.Params.ByName("merchant_code")
 	merchant, findMerchant, err := m.merchantRepository.FindMerchantByCode(merchantCode)
 
 	if err != nil {
-		m.log.PrintError(ctx, c, fmt.Sprintf("error finding merchant %s. Error: %s", merchantCode, err.Error()), false)
-		response.JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding merchant %s", merchantCode))
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error finding merchant %s. Error: %s", merchantCode, err.Error()), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding merchant %s", merchantCode))
 		return
 	}
 
 	if !findMerchant {
-		m.log.PrintError(ctx, c, fmt.Sprintf("merchant not found %s.", merchantCode), false)
-		response.JsonFail(c, http.StatusNotFound, "merchant not found")
+		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("merchant not found %s.", merchantCode), false)
+		helpers.JsonResponse().JsonFail(c, http.StatusNotFound, "merchant not found")
 		return
 	}
 
@@ -235,6 +223,6 @@ func (m *merchantServiceImpl) FindMerchantByCode(ctx context.Context, c *gin.Con
 		Name:         merchant.Name,
 	}
 
-	response.JsonSuccess(c, merchantDTO)
-	m.log.PrintInfo(ctx, c, "execution of find merchant by code finished.")
+	helpers.JsonResponse().JsonSuccess(c, merchantDTO)
+	helpers.CustomLog().PrintInfo(ctx, c, "execution of find merchant by code finished.")
 }

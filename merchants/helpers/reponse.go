@@ -4,15 +4,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type JsonResponse interface {
-	JsonSuccess(data interface{})
-	JsonFail(c *gin.Context, message string)
-}
-
+// JsonResponse is a singleton for structure http responses
 type jsonResponse struct{}
 
-func NewJsonResponse() *jsonResponse {
-	return &jsonResponse{}
+var jsonRes *jsonResponse
+
+func JsonResponse() *jsonResponse {
+	if jsonRes == nil {
+		jsonRes = &jsonResponse{}
+	}
+
+	return jsonRes
 }
 
 func (r *jsonResponse) JsonSuccess(c *gin.Context, data interface{}) {

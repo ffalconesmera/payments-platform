@@ -8,26 +8,22 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// CustomLog is an interface for print by console
-type CustomLog interface {
-	GetRequestContextId(key string) string
-	PrintInfo(ctx context.Context, c *gin.Context, v any)
-	PrintError(ctx context.Context, c *gin.Context, v any, shutdown bool)
-	logError(ctx context.Context, c *gin.Context, v any)
-	logInfo(ctx context.Context, c *gin.Context, v any)
-}
+// CustomLog is a singleton for loggin
+type customLog struct{}
 
-type customLog struct {
-	h CustomHash
-}
+var clog *customLog
 
-func NewCustomLog(h CustomHash) *customLog {
-	return &customLog{h: h}
+func CustomLog() *customLog {
+	if clog == nil {
+		clog = &customLog{}
+	}
+
+	return clog
 }
 
 // Generate and return and uuid for identify context
 func (l *customLog) GetRequestContextId(k string) string {
-	return fmt.Sprintf("%s_%s", k, l.h.NewUUIDString())
+	return fmt.Sprintf("%s_%s", k, CustomHash().NewUUIDString())
 }
 
 // Print by console a info log

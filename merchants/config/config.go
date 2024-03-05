@@ -10,21 +10,16 @@ import (
 )
 
 // Config is an interface for get environment vars
-type Config interface {
-	InitConfig()
-	GetDatabaseHost() string
-	GetDatabasePort() string
-	GetDatabaseName() string
-	GetDatabaseUser() string
-	GetDatabasePassword() string
-	GetJWTExpiration() int64
-	GetJWTSecretKey() string
-}
-
 type configImpl struct{}
 
-func NewConfig() *configImpl {
-	return &configImpl{}
+var conf *configImpl
+
+func Config() *configImpl {
+	if conf == nil {
+		conf = &configImpl{}
+	}
+
+	return conf
 }
 
 func (c *configImpl) InitConfig() {

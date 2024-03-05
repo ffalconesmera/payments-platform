@@ -9,21 +9,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// CustomHash is an interface for create customs hashes and indentifiers
-type CustomHash interface {
-	GenerateHashPassword(password string) string
-	CheckHashPassword(hash, password string) bool
-	NewUUIDString() string
-	CreateJWToken(username string) (string, error)
-	CheckJWToken(tokenString string) (bool, string)
-}
+// CustomHash is a singleton for create customs hashes and indentifiers
+type customHash struct{}
 
-type customHash struct {
-	config config.Config
-}
+var hash *customHash
 
-func NewCustomHash(config config.Config) *customHash {
-	return &customHash{config: config}
+func CustomHash() *customHash {
+	if hash == nil {
+		hash = &customHash{}
+	}
+
+	return hash
 }
 
 // Generate hash for stored passwords
@@ -48,10 +44,10 @@ func (c *customHash) CreateJWToken(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": username,
-			"exp":      time.Now().Add(time.Minute * time.Duration(c.config.GetJWTExpiration())).Unix(),
+			"exp":      time.Now().Add(time.Minute * time.Duration(config.Config().GetJWTExpiration())).Unix(),
 		})
 
-	tokenString, err := token.SignedString([]byte(c.config.GetJWTSecretKey()))
+	tokenString, err := token.SignedString([]byte(config.Config().GetJWTSecretKey()))
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +58,7 @@ func (c *customHash) CreateJWToken(username string) (string, error) {
 // Check if a json web token is valid
 func (c *customHash) CheckJWToken(tokenString string) (bool, string) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return c.config.GetJWTSecretKey(), nil
+		return config.Config().GetJWTSecretKey(), nil
 	})
 
 	if err != nil {

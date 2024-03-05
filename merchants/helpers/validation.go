@@ -6,19 +6,17 @@ import (
 	"unicode"
 )
 
-// CustomValidation is an interface for returning errors
-type CustomValidation interface {
-	InvalidFloat(f float64) bool
-	EmptyString(s string) bool
-	DateInvalid(s string) bool
-	PasswordInvalid(s string) bool
-	PasswordInvalidMessage() string
-}
-
+// CustomValidation is a singleton for returning errors
 type customValidation struct{}
 
-func NewCustomValidation() *customValidation {
-	return &customValidation{}
+var cValid *customValidation
+
+func CustomValidation() *customValidation {
+	if cValid == nil {
+		cValid = &customValidation{}
+	}
+
+	return cValid
 }
 
 func (c *customValidation) InvalidFloat(f float64) bool {

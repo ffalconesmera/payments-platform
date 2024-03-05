@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// CustomValidation is a singleton for returning errors
 type customValidation struct{}
 
 var cValid *customValidation

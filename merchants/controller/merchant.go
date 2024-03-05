@@ -22,32 +22,30 @@ type MerchantController interface {
 
 type merchantControllerImpl struct {
 	merchantService service.MerchantService
-	hash            helpers.CustomHash
 }
 
-func NewMerchantController(ctx context.Context, merchantService service.MerchantService, hash helpers.CustomHash) *merchantControllerImpl {
+func NewMerchantController(ctx context.Context, merchantService service.MerchantService) *merchantControllerImpl {
 	return &merchantControllerImpl{
 		merchantService: merchantService,
-		hash:            hash,
 	}
 }
 
 func (m *merchantControllerImpl) Login(ctx context.Context, c *gin.Context) {
-	loginCtx := context.WithValue(ctx, "REQUEST_ID", m.hash.NewUUIDString())
+	loginCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
 	m.merchantService.Login(loginCtx, c)
 }
 
 func (m *merchantControllerImpl) SingUp(ctx context.Context, c *gin.Context) {
-	singUpCtx := context.WithValue(ctx, "REQUEST_ID", m.hash.NewUUIDString())
+	singUpCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
 	m.merchantService.SingUp(singUpCtx, c)
 }
 
 func (m *merchantControllerImpl) FindMerchantByCode(ctx context.Context, c *gin.Context) {
-	findMerchantCtx := context.WithValue(ctx, "REQUEST_ID", m.hash.NewUUIDString())
+	findMerchantCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
 	m.merchantService.FindMerchantByCode(findMerchantCtx, c)
 }
 
 func (m *merchantControllerImpl) FindMerchantById(ctx context.Context, c *gin.Context) {
-	findMerchantCtx := context.WithValue(ctx, "REQUEST_ID", m.hash.NewUUIDString())
+	findMerchantCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
 	m.merchantService.FindMerchantByCode(findMerchantCtx, c)
 }

@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// CustomLog is a singleton for loggin
 type customLog struct{}
 
 var clog *customLog
