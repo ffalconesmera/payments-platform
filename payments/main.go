@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	"github.com/ffalconesmera/payments-platform/payments/config"
@@ -16,18 +15,15 @@ import (
 
 func main() {
 	log.Println("initializating merchant api..")
-	ctx := context.Background()
 
 	log.Println("reading variables environment..")
-	config.Config().InitConfig()
+	config.InitConfig()
 
 	log.Println("set up http logger..")
 	logrus.SetLevel(logrus.InfoLevel)
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
-	db := database.NewDatabaseConnection()
-	db.InitDatabase(config.Config().GetDatabaseHost(), config.Config().GetDatabasePort(), config.Config().GetDatabaseName(), config.Config().GetDatabaseUser(), config.Config().GetDatabasePassword())
-	defer db.Close()
+	db := database.NewDatabaseConnection(config.GetDatabaseHost(), config.GetDatabasePort(), config.GetDatabaseName(), config.GetDatabaseUser(), config.GetDatabasePassword())
 
 	log.Println("setting repository layer..")
 	customerRepo := repository.NewCustomerRepository(db)
@@ -37,11 +33,11 @@ func main() {
 	merchantRepo := external_repository.NewMerchantRepository()
 
 	log.Println("setting service layer..")
-	paymentService := service.NewPaymentService(ctx, paymentRepo, refundRepo, customerRepo, bankRepo, merchantRepo)
+	paymentService := service.NewPaymentService(&paymentRepo, &refundRepo, &customerRepo, &bankRepo, &merchantRepo)
 
 	log.Println("setting controller layer..")
-	paymentController := controller.NewPaymentController(ctx, paymentService)
+	paymentController := controller.NewPaymentController(&paymentService)
 
 	log.Println("init routes and listening..")
-	routes.InitApiRouter(ctx, paymentController).ListenAndServe(ctx)
+	routes.InitApiRouter(&paymentController).ListenAndServe()
 }

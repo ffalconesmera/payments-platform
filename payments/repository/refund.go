@@ -1,45 +1,45 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/ffalconesmera/payments-platform/payments/database"
 	"github.com/ffalconesmera/payments-platform/payments/model"
 )
 
 // MerchantRepository is an interface to retrieve and create refunds
 type RefundRepository interface {
-	FindRefundById(id string) (*model.PayRefund, bool, error)
-	CreateRefund(refund *model.PayRefund) error
-	SaveRefund(refund *model.PayRefund) error
-	Repository
+	FindRefundById(ctxt context.Context, id string) (*model.PayRefund, bool, error)
+	CreateRefund(ctxt context.Context, refund *model.PayRefund) error
+	SaveRefund(ctxt context.Context, refund *model.PayRefund) error
 }
 
 type refundRepositoryImpl struct {
-	db database.DatabaseConnection
-	RepositoryImpl
+	db *database.DBCon
 }
 
-func NewRefundRepository(db database.DatabaseConnection) *refundRepositoryImpl {
-	db.GetDatabase().AutoMigrate(&model.PayRefund{})
+func NewRefundRepository(db *database.DBCon) RefundRepository {
+	db.AutoMigrate(&model.PayRefund{})
 	return &refundRepositoryImpl{db: db}
 }
 
 // FindRefundById: retrieve refund data by id
-func (u *refundRepositoryImpl) FindRefundById(id string) (*model.PayRefund, bool, error) {
+func (c *refundRepositoryImpl) FindRefundById(ctxt context.Context, id string) (*model.PayRefund, bool, error) {
 	whereRefund := model.PayRefund{UUID: id}
 	var refund model.PayRefund
-	result := u.db.GetDatabase().Where(whereRefund).Find(&refund)
+	result := c.db.WithContext(ctxt).Where(whereRefund).Find(&refund)
 	return &refund, result.RowsAffected > 0, result.Error
 }
 
 // CreateRefund: store a new refund
-func (u *refundRepositoryImpl) CreateRefund(refund *model.PayRefund) error {
-	err := u.db.GetDatabase().Create(&refund)
+func (c *refundRepositoryImpl) CreateRefund(ctxt context.Context, refund *model.PayRefund) error {
+	err := c.db.WithContext(ctxt).Create(&refund)
 	return err.Error
 }
 
 // CreateRefund: update a refund
-func (u *refundRepositoryImpl) SaveRefund(refund *model.PayRefund) error {
+func (c *refundRepositoryImpl) SaveRefund(ctxt context.Context, refund *model.PayRefund) error {
 	whereRefund := model.PayRefund{UUID: refund.UUID}
-	err := u.db.GetDatabase().Where(whereRefund).Save(&refund)
+	err := c.db.WithContext(ctxt).Where(whereRefund).Save(&refund)
 	return err.Error
 }

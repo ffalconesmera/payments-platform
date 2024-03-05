@@ -1,38 +1,38 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/ffalconesmera/payments-platform/payments/database"
 	"github.com/ffalconesmera/payments-platform/payments/model"
 )
 
 // CustomerRepository is an interface to retrieve and create customers
 type CustomerRepository interface {
-	FindCustomerById(id string) (*model.PayCustomer, bool, error)
-	CreateCustomer(customer *model.PayCustomer) error
-	Repository
+	FindCustomerById(ctxt context.Context, id string) (*model.PayCustomer, bool, error)
+	CreateCustomer(ctxt context.Context, customer *model.PayCustomer) error
 }
 
 type customerRepositoryImpl struct {
-	db database.DatabaseConnection
-	RepositoryImpl
+	db *database.DBCon
 }
 
-func NewCustomerRepository(db database.DatabaseConnection) *customerRepositoryImpl {
-	db.GetDatabase().AutoMigrate(&model.PayCustomer{})
+func NewCustomerRepository(db *database.DBCon) CustomerRepository {
+	db.AutoMigrate(&model.PayCustomer{})
 
 	return &customerRepositoryImpl{db: db}
 }
 
 // FindCustomerById: retrieve a customer data by code
-func (m *customerRepositoryImpl) FindCustomerById(id string) (*model.PayCustomer, bool, error) {
+func (c *customerRepositoryImpl) FindCustomerById(ctxt context.Context, id string) (*model.PayCustomer, bool, error) {
 	whereCustomer := model.PayCustomer{UUID: id}
 	var customer model.PayCustomer
-	result := m.db.GetDatabase().Where(whereCustomer).Find(&customer)
+	result := c.db.WithContext(ctxt).Where(whereCustomer).Find(&customer)
 	return &customer, result.RowsAffected > 0, result.Error
 }
 
 // CreateCustomer: store a new customer
-func (m *customerRepositoryImpl) CreateCustomer(customer *model.PayCustomer) error {
-	err := m.db.GetDatabase().Create(&customer)
+func (c *customerRepositoryImpl) CreateCustomer(ctxt context.Context, customer *model.PayCustomer) error {
+	err := c.db.WithContext(ctxt).Create(&customer)
 	return err.Error
 }

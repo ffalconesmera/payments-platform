@@ -7,27 +7,15 @@ import (
 )
 
 // CustomHash is a singleton for create customs hashes and indentifiers
-type customHash struct{}
-
-var hash *customHash
-
-func CustomHash() *customHash {
-	if hash == nil {
-		hash = &customHash{}
-	}
-
-	return hash
-}
-
 // Generate an identifier
-func (h *customHash) NewUUIDString() string {
+func NewUUIDString() string {
 	return uuid.New().String()
 }
 
 // Check if a json web token is valid
-func (h *customHash) CheckJWToken(tokenString string) (bool, string) {
+func CheckJWToken(tokenString string) (bool, string) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return config.Config().GetJWTSecretKey(), nil
+		return config.GetJWTSecretKey(), nil
 	})
 
 	if err != nil {

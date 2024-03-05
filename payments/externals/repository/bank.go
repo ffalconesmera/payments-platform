@@ -24,7 +24,7 @@ func NewBankRepository() BankRepository {
 // ProcessPayment: send an order of charge to the bank
 func (m *bankRepositoryImpl) ProcessPayment(paymentCode string) (*dto.BankPayment, error) {
 	var bankPayment dto.BankPayment
-	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.Config().GetMerchantEndpoint(), paymentCode), "GET", "", &bankPayment)
+	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.GetMerchantEndpoint(), paymentCode), "GET", "", &bankPayment)
 
 	if err != nil {
 		return nil, errors.New(err.Error())
@@ -35,7 +35,7 @@ func (m *bankRepositoryImpl) ProcessPayment(paymentCode string) (*dto.BankPaymen
 
 func (m *bankRepositoryImpl) ProcessRefund(paymentCode string) (*dto.BankRefund, error) {
 	var bankRefund dto.BankRefund
-	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.Config().GetMerchantEndpoint(), paymentCode), "GET", "", &bankRefund)
+	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.GetMerchantEndpoint(), paymentCode), "GET", "", &bankRefund)
 
 	if err != nil {
 		return nil, errors.New(err.Error())

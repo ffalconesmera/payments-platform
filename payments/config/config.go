@@ -10,19 +10,7 @@ import (
 )
 
 // Config is an singleton for get environment vars
-type configImpl struct{}
-
-var conf *configImpl
-
-func Config() *configImpl {
-	if conf == nil {
-		conf = &configImpl{}
-	}
-
-	return conf
-}
-
-func (c *configImpl) InitConfig() {
+func InitConfig() {
 	err := godotenv.Load()
 
 	if err != nil {
@@ -32,27 +20,27 @@ func (c *configImpl) InitConfig() {
 	log.Println(".env load successful")
 }
 
-func (c *configImpl) GetDatabaseHost() string {
+func GetDatabaseHost() string {
 	return os.Getenv("DB_HOST")
 }
 
-func (c *configImpl) GetDatabasePort() string {
+func GetDatabasePort() string {
 	return os.Getenv("DB_PORT")
 }
 
-func (c *configImpl) GetDatabaseName() string {
+func GetDatabaseName() string {
 	return os.Getenv("DB_NAME")
 }
 
-func (c *configImpl) GetDatabaseUser() string {
+func GetDatabaseUser() string {
 	return os.Getenv("DB_USER")
 }
 
-func (c *configImpl) GetDatabasePassword() string {
+func GetDatabasePassword() string {
 	return os.Getenv("DB_PASSWORD")
 }
 
-func (c *configImpl) GetJWTSecretKey() string {
+func GetJWTSecretKey() string {
 	secret := os.Getenv("JWT_SECRET_KEY")
 	if secret == "" {
 		panic("jwt secret key is undefined")
@@ -61,7 +49,7 @@ func (c *configImpl) GetJWTSecretKey() string {
 	return secret
 }
 
-func (c *configImpl) GetPaymentExpiration() int64 {
+func GetPaymentExpiration() int64 {
 	minutes, err := strconv.ParseInt(os.Getenv("PAYMENT_EXPIRATION_MINUTES"), 10, 64)
 	if err != nil {
 		minutes = 5
@@ -70,10 +58,10 @@ func (c *configImpl) GetPaymentExpiration() int64 {
 	return minutes
 }
 
-func (c *configImpl) GetBankEndpoint() string {
+func GetBankEndpoint() string {
 	return os.Getenv("BANK_SIMULATOR_ENDPOINT")
 }
 
-func (c *configImpl) GetMerchantEndpoint() string {
+func GetMerchantEndpoint() string {
 	return os.Getenv("MERCHANTS_ENDPOINT")
 }

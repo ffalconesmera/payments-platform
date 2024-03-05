@@ -21,10 +21,10 @@ import (
 // RefundPayment: send to bank an order of refund
 // CheckPayment: returns the information of a previous payment
 type PaymentService interface {
-	CheckoutPayment(ctx context.Context, c *gin.Context)
-	ProcessPayment(ctx context.Context, c *gin.Context)
-	RefundPayment(ctx context.Context, c *gin.Context)
-	CheckPayment(ctx context.Context, c *gin.Context)
+	CheckoutPayment(ctxt context.Context, c *gin.Context)
+	ProcessPayment(ctxt context.Context, c *gin.Context)
+	RefundPayment(ctxt context.Context, c *gin.Context)
+	CheckPayment(ctxt context.Context, c *gin.Context)
 }
 
 type paymentServiceImpl struct {
@@ -35,89 +35,89 @@ type paymentServiceImpl struct {
 	merchantRepository ext_repository.MerchantRepository
 }
 
-func NewPaymentService(ctx context.Context, paymentRepository repository.PaymentRepository, refundRepository repository.RefundRepository, customerRepository repository.CustomerRepository, bankRepository ext_repository.BankRepository, merchantRepository ext_repository.MerchantRepository) PaymentService {
+func NewPaymentService(paymentRepository *repository.PaymentRepository, refundRepository *repository.RefundRepository, customerRepository *repository.CustomerRepository, bankRepository *ext_repository.BankRepository, merchantRepository *ext_repository.MerchantRepository) PaymentService {
 	return &paymentServiceImpl{
-		paymentRepository:  paymentRepository,
-		refundRepository:   refundRepository,
-		customerRepository: customerRepository,
-		bankRepository:     bankRepository,
-		merchantRepository: merchantRepository,
+		paymentRepository:  *paymentRepository,
+		refundRepository:   *refundRepository,
+		customerRepository: *customerRepository,
+		bankRepository:     *bankRepository,
+		merchantRepository: *merchantRepository,
 	}
 }
 
 // CheckoutPayment: generate an payment order and return a payment code for future process
-func (p *paymentServiceImpl) CheckoutPayment(ctx context.Context, c *gin.Context) {
-	helpers.CustomLog().PrintInfo(ctx, c, "start to execute sing up method..")
+func (cp *paymentServiceImpl) CheckoutPayment(ctxt context.Context, c *gin.Context) {
+	helpers.PrintInfo(ctxt, c, "start to execute sing up method..")
 
-	helpers.CustomLog().PrintInfo(ctx, c, "finding merchant by code..")
+	helpers.PrintInfo(ctxt, c, "finding merchant by code..")
 	merchantCode := c.Params.ByName("merchant_code")
 
-	merchant, err := p.merchantRepository.FindMerchantByCode(merchantCode)
+	merchant, err := cp.merchantRepository.FindMerchantByCode(merchantCode)
 
 	if err != nil {
-		helpers.CustomLog().PrintInfo(ctx, c, fmt.Sprintf("merchant not found %s. Error: %s", merchantCode, err.Error()))
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("merchant not found %s", merchantCode))
+		helpers.PrintInfo(ctxt, c, fmt.Sprintf("merchant not found %s. Error: %s", merchantCode, err.Error()))
+		helpers.JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("merchant not found %s", merchantCode))
 		return
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "mapping payment data..")
+	helpers.PrintInfo(ctxt, c, "mapping payment data..")
 	var payment *dto.Payment
 	if err := c.ShouldBindJSON(&payment); err != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error mapping payment information. Error: %s", err), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "data sent is invalid")
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error mapping payment information. Error: %s", err), false)
+		helpers.JsonFail(c, http.StatusBadRequest, "data sent is invalid")
 		return
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "validating merchant data..")
+	helpers.PrintInfo(ctxt, c, "validating merchant data..")
 
 	if helpers.CustomValidation().InvalidFloat(payment.Amount) {
-		helpers.CustomLog().PrintError(ctx, c, "amount could not be zero", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "amount could not be zero")
+		helpers.PrintError(ctxt, c, "amount could not be zero", false)
+		helpers.JsonFail(c, http.StatusBadRequest, "amount could not be zero")
 		return
 	}
 
 	if helpers.CustomValidation().EmptyString(payment.Description) {
-		helpers.CustomLog().PrintError(ctx, c, "description could not be empty", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "description could not be empty")
+		helpers.PrintError(ctxt, c, "description could not be empty", false)
+		helpers.JsonFail(c, http.StatusBadRequest, "description could not be empty")
 		return
 	}
 
 	_, okCurrency := model.Currency[payment.Currency]
 
 	if !okCurrency {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("currency: is not a valid value. %v", model.Currency), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, fmt.Sprintf("currency: is not a valid value. %v", model.Currency))
+		helpers.PrintError(ctxt, c, fmt.Sprintf("currency: is not a valid value. %v", model.Currency), false)
+		helpers.JsonFail(c, http.StatusBadRequest, fmt.Sprintf("currency: is not a valid value. %v", model.Currency))
 		return
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "validating customer data..")
+	helpers.PrintInfo(ctxt, c, "validating customer data..")
 	if helpers.CustomValidation().EmptyString(payment.Customer.DNI) {
-		helpers.CustomLog().PrintError(ctx, c, "customer dni could not be empty", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "customer dni could not be empty")
+		helpers.PrintError(ctxt, c, "customer dni could not be empty", false)
+		helpers.JsonFail(c, http.StatusBadRequest, "customer dni could not be empty")
 		return
 	}
 
 	if helpers.CustomValidation().EmptyString(payment.Customer.Name) {
-		helpers.CustomLog().PrintError(ctx, c, "customer name could not be empty", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "customer name could not be empty")
+		helpers.PrintError(ctxt, c, "customer name could not be empty", false)
+		helpers.JsonFail(c, http.StatusBadRequest, "customer name could not be empty")
 		return
 	}
 
 	if helpers.CustomValidation().EmptyString(payment.Customer.Email) {
-		helpers.CustomLog().PrintError(ctx, c, "customer email could not be empty", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "customer email could not be empty")
+		helpers.PrintError(ctxt, c, "customer email could not be empty", false)
+		helpers.JsonFail(c, http.StatusBadRequest, "customer email could not be empty")
 		return
 	}
 
 	if helpers.CustomValidation().EmptyString(payment.Customer.Phone) {
-		helpers.CustomLog().PrintError(ctx, c, "customer phone could not be empty", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, "customer phone could not be empty")
+		helpers.PrintError(ctxt, c, "customer phone could not be empty", false)
+		helpers.JsonFail(c, http.StatusBadRequest, "customer phone could not be empty")
 		return
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "parsing dto data to customer model..")
+	helpers.PrintInfo(ctxt, c, "parsing dto data to customer model..")
 	customerModel := model.PayCustomer{
-		UUID:    helpers.CustomHash().NewUUIDString(),
+		UUID:    helpers.NewUUIDString(),
 		DNI:     payment.Customer.DNI,
 		Name:    payment.Customer.Name,
 		Email:   payment.Customer.Email,
@@ -125,14 +125,14 @@ func (p *paymentServiceImpl) CheckoutPayment(ctx context.Context, c *gin.Context
 		Address: payment.Customer.Address,
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "parsing dto data to payment model..")
-	exp := time.Now().Add(time.Minute * time.Duration(config.Config().GetPaymentExpiration()))
+	helpers.PrintInfo(ctxt, c, "parsing dto data to payment model..")
+	exp := time.Now().Add(time.Minute * time.Duration(config.GetPaymentExpiration()))
 
 	bankName := "simulator"
 
 	paymentModel := model.PayTransaction{
-		UUID:                     helpers.CustomHash().NewUUIDString(),
-		PaymentCode:              helpers.CustomHash().NewUUIDString(),
+		UUID:                     helpers.NewUUIDString(),
+		PaymentCode:              helpers.NewUUIDString(),
 		MerchantCode:             merchant.MerchantCode,
 		Amount:                   payment.Amount,
 		Description:              payment.Description,
@@ -144,29 +144,23 @@ func (p *paymentServiceImpl) CheckoutPayment(ctx context.Context, c *gin.Context
 		CustomerUUID:             customerModel.UUID,
 	}
 
-	tx := p.paymentRepository.BeginTransaction()
-
-	helpers.CustomLog().PrintInfo(ctx, c, "saving customer data..")
-	errInsertCustomer := p.customerRepository.CreateCustomer(&customerModel)
+	helpers.PrintInfo(ctxt, c, "saving customer data..")
+	errInsertCustomer := cp.customerRepository.CreateCustomer(ctxt, &customerModel)
 
 	if errInsertCustomer != nil {
-		p.paymentRepository.RollbackTransaction(tx)
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error saving customer information. Error: %s", errInsertCustomer.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error saving payment information")
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error saving customer information. Error: %s", errInsertCustomer.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, "error saving payment information")
 		return
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "saving payment data..")
-	errInsertPayment := p.paymentRepository.CreatePayment(&paymentModel)
+	helpers.PrintInfo(ctxt, c, "saving payment data..")
+	errInsertPayment := cp.paymentRepository.CreatePayment(ctxt, &paymentModel)
 
 	if errInsertPayment != nil {
-		p.paymentRepository.RollbackTransaction(tx)
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error saving payment information. Error: %s", errInsertPayment.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error saving payment information")
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error saving payment information. Error: %s", errInsertPayment.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, "error saving payment information")
 		return
 	}
-
-	p.paymentRepository.CommitTransaction(tx)
 
 	payment.PaymentCode = paymentModel.PaymentCode
 	payment.MerchantCode = paymentModel.MerchantCode
@@ -174,49 +168,49 @@ func (p *paymentServiceImpl) CheckoutPayment(ctx context.Context, c *gin.Context
 	payment.NaturalExpirationProcess = paymentModel.NaturalExpirationProcess
 	payment.BankName = paymentModel.BankName
 
-	helpers.JsonResponse().JsonSuccess(c, payment)
-	helpers.CustomLog().PrintInfo(ctx, c, "execution of payment checkout finished.")
+	helpers.JsonSuccess(c, payment)
+	helpers.PrintInfo(ctxt, c, "execution of payment checkout finished.")
 }
 
-func (p paymentServiceImpl) ProcessPayment(ctx context.Context, c *gin.Context) {
-	helpers.CustomLog().PrintInfo(ctx, c, "start to execute process payment method..")
+func (cp paymentServiceImpl) ProcessPayment(ctxt context.Context, c *gin.Context) {
+	helpers.PrintInfo(ctxt, c, "start to execute process payment method..")
 
-	helpers.CustomLog().PrintInfo(ctx, c, "finding payment by code..")
+	helpers.PrintInfo(ctxt, c, "finding payment by code..")
 	paymentCode := c.Params.ByName("payment_code")
 
-	payment, findPayment, err := p.paymentRepository.FindPaymentByCode(paymentCode)
+	payment, findPayment, err := cp.paymentRepository.FindPaymentByCode(ctxt, paymentCode)
 
 	if err != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error finding payment %s. Error: %s", paymentCode, err.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding payment: %s", paymentCode))
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error finding payment %s. Error: %s", paymentCode, err.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding payment: %s", paymentCode))
 		return
 	}
 
 	if !findPayment {
-		helpers.CustomLog().PrintError(ctx, c, "payment not found", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusNotFound, "payment not found")
+		helpers.PrintError(ctxt, c, "payment not found", false)
+		helpers.JsonFail(c, http.StatusNotFound, "payment not found")
 		return
 	}
 
 	if payment.Status != model.TransactionStatusPending {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("could not process. payment is %s.", payment.Status), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusConflict, fmt.Sprintf("could not process. payment is %s.", payment.Status))
+		helpers.PrintError(ctxt, c, fmt.Sprintf("could not process. payment is %s.", payment.Status), false)
+		helpers.JsonFail(c, http.StatusConflict, fmt.Sprintf("could not process. payment is %s.", payment.Status))
 		return
 	}
 
-	bankResp, err := p.bankRepository.ProcessPayment(paymentCode)
+	bankResp, err := cp.bankRepository.ProcessPayment(paymentCode)
 	if err != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("payment could not be processed. Error: %s.", err.Error()), false)
-		helpers.CustomLog().PrintError(ctx, c, err, false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "payment could not be processed")
+		helpers.PrintError(ctxt, c, fmt.Sprintf("payment could not be processed. Error: %s.", err.Error()), false)
+		helpers.PrintError(ctxt, c, err, false)
+		helpers.JsonFail(c, http.StatusInternalServerError, "payment could not be processed")
 		return
 	}
 
 	if bankResp.Code == 1000 {
-		helpers.CustomLog().PrintInfo(ctx, c, "payment processed")
+		helpers.PrintInfo(ctxt, c, "payment processed")
 		payment.Status = model.TransactionStatusSucceeded
 	} else if bankResp.Code == 2000 {
-		helpers.CustomLog().PrintInfo(ctx, c, "insufficient funds")
+		helpers.PrintInfo(ctxt, c, "insufficient funds")
 		payment.Status = model.TransactionStatusFailure
 	}
 
@@ -228,79 +222,76 @@ func (p paymentServiceImpl) ProcessPayment(ctx context.Context, c *gin.Context) 
 		payment.BankReference = &bankResp.Reference
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "saving payment data..")
-	errInsertPayment := p.paymentRepository.SavePayment(payment)
+	helpers.PrintInfo(ctxt, c, "saving payment data..")
+	errInsertPayment := cp.paymentRepository.SavePayment(ctxt, payment)
 
 	if errInsertPayment != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error saving payment information. Error: %s", errInsertPayment.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error saving payment information")
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error saving payment information. Error: %s", errInsertPayment.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, "error saving payment information")
 		return
 	}
 
 	if bankResp.Code != 1000 {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("payment no processed by the bank. info: %s", bankResp.Message), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusForbidden, bankResp.Message)
+		helpers.PrintError(ctxt, c, fmt.Sprintf("payment no processed by the bank. info: %s", bankResp.Message), false)
+		helpers.JsonFail(c, http.StatusForbidden, bankResp.Message)
 	} else {
-		helpers.JsonResponse().JsonSuccess(c, bankResp)
+		helpers.JsonSuccess(c, bankResp)
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "execution of payment processing finished.")
+	helpers.PrintInfo(ctxt, c, "execution of payment processing finished.")
 }
 
-func (p paymentServiceImpl) RefundPayment(ctx context.Context, c *gin.Context) {
-	helpers.CustomLog().PrintInfo(ctx, c, "start to execute refund method..")
+func (cp paymentServiceImpl) RefundPayment(ctxt context.Context, c *gin.Context) {
+	helpers.PrintInfo(ctxt, c, "start to execute refund method..")
 
-	helpers.CustomLog().PrintInfo(ctx, c, "finding payment by code..")
+	helpers.PrintInfo(ctxt, c, "finding payment by code..")
 	paymentCode := c.Params.ByName("payment_code")
 
-	payment, findPayment, err := p.paymentRepository.FindPaymentByCode(paymentCode)
+	payment, findPayment, err := cp.paymentRepository.FindPaymentByCode(ctxt, paymentCode)
 
 	if err != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error finding payment %s. Error: %s", paymentCode, err.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding payment: %s", paymentCode))
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error finding payment %s. Error: %s", paymentCode, err.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding payment: %s", paymentCode))
 		return
 	}
 
 	if !findPayment {
-		helpers.CustomLog().PrintError(ctx, c, "payment not found", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusNotFound, "payment not found")
+		helpers.PrintError(ctxt, c, "payment not found", false)
+		helpers.JsonFail(c, http.StatusNotFound, "payment not found")
 		return
 	}
 
 	if payment.Status != model.TransactionStatusPending && payment.Status != model.TransactionStatusSucceeded {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("refund could not be processed process. payment is %s.", payment.Status), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusConflict, fmt.Sprintf("refund could not be processed process. payment is %s.", payment.Status))
+		helpers.PrintError(ctxt, c, fmt.Sprintf("refund could not be processed process. payment is %s.", payment.Status), false)
+		helpers.JsonFail(c, http.StatusConflict, fmt.Sprintf("refund could not be processed process. payment is %s.", payment.Status))
 		return
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "processing refund data..")
-	bankResp, err := p.bankRepository.ProcessRefund(paymentCode)
+	helpers.PrintInfo(ctxt, c, "processing refund data..")
+	bankResp, err := cp.bankRepository.ProcessRefund(paymentCode)
 	if err != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("refund could not be processed process. Error: %s.", err.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "refund could not be processed")
+		helpers.PrintError(ctxt, c, fmt.Sprintf("refund could not be processed process. Error: %s.", err.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, "refund could not be processed")
 		return
 	}
-
-	tx := p.paymentRepository.BeginTransaction()
 
 	if bankResp.Code == 1000 {
-		helpers.CustomLog().PrintInfo(ctx, c, "refund processed")
+		helpers.PrintInfo(ctxt, c, "refund processed")
 
 		t := time.Now()
 		refund := model.PayRefund{
-			UUID:          helpers.CustomHash().NewUUIDString(),
-			Code:          helpers.CustomHash().NewUUIDString(),
+			UUID:          helpers.NewUUIDString(),
+			Code:          helpers.NewUUIDString(),
 			BankReference: bankResp.Reference,
 			Date:          &t,
 		}
 
-		helpers.CustomLog().PrintInfo(ctx, c, "saving refund data..")
-		errInsertRefund := p.refundRepository.CreateRefund(&refund)
+		helpers.PrintInfo(ctxt, c, "saving refund data..")
+		errInsertRefund := cp.refundRepository.CreateRefund(ctxt, &refund)
 
 		if errInsertRefund != nil {
-			p.paymentRepository.RollbackTransaction(tx)
-			helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error saving refund information. Error: %s.", errInsertRefund.Error()), false)
-			helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error saving refund information")
+			helpers.PrintError(ctxt, c, fmt.Sprintf("error saving refund information. Error: %s.", errInsertRefund.Error()), false)
+			helpers.JsonFail(c, http.StatusInternalServerError, "error saving refund information")
 			return
 		}
 
@@ -312,47 +303,45 @@ func (p paymentServiceImpl) RefundPayment(ctx context.Context, c *gin.Context) {
 		payment.FailureReason = &bankResp.Message
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "saving payment data..")
-	errInsertPayment := p.paymentRepository.SavePayment(payment)
+	helpers.PrintInfo(ctxt, c, "saving payment data..")
+	errInsertPayment := cp.paymentRepository.SavePayment(ctxt, payment)
 
 	if errInsertPayment != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error saving payment information. Error: %s.", errInsertPayment.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, "error saving payment information")
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error saving payment information. Error: %s.", errInsertPayment.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, "error saving payment information")
 		return
 	}
 
-	p.paymentRepository.CommitTransaction(tx)
-
 	if bankResp.Code != 1000 {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("refund no processed by the bank. info. Error: %s.", bankResp.Message), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusBadRequest, bankResp.Message)
+		helpers.PrintError(ctxt, c, fmt.Sprintf("refund no processed by the bank. info. Error: %s.", bankResp.Message), false)
+		helpers.JsonFail(c, http.StatusBadRequest, bankResp.Message)
 	} else {
-		helpers.JsonResponse().JsonSuccess(c, bankResp)
+		helpers.JsonSuccess(c, bankResp)
 	}
 
-	helpers.CustomLog().PrintInfo(ctx, c, "execution of payment refund finished.")
+	helpers.PrintInfo(ctxt, c, "execution of payment refund finished.")
 }
 
-func (p paymentServiceImpl) CheckPayment(ctx context.Context, c *gin.Context) {
-	helpers.CustomLog().PrintInfo(ctx, c, "start to execute checking payment method..")
+func (cp paymentServiceImpl) CheckPayment(ctxt context.Context, c *gin.Context) {
+	helpers.PrintInfo(ctxt, c, "start to execute checking payment method..")
 
-	helpers.CustomLog().PrintInfo(ctx, c, "finding merchant by code..")
+	helpers.PrintInfo(ctxt, c, "finding merchant by code..")
 	paymentCode := c.Params.ByName("payment_code")
 
-	payment, findPayment, err := p.paymentRepository.FindPaymentByCode(paymentCode)
+	payment, findPayment, err := cp.paymentRepository.FindPaymentByCode(ctxt, paymentCode)
 
 	if err != nil {
-		helpers.CustomLog().PrintError(ctx, c, fmt.Sprintf("error finding payment %s. Error: %s", paymentCode, err.Error()), false)
-		helpers.JsonResponse().JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding payment: %s", paymentCode))
+		helpers.PrintError(ctxt, c, fmt.Sprintf("error finding payment %s. Error: %s", paymentCode, err.Error()), false)
+		helpers.JsonFail(c, http.StatusInternalServerError, fmt.Sprintf("error finding payment: %s", paymentCode))
 		return
 	}
 
 	if !findPayment {
-		helpers.CustomLog().PrintError(ctx, c, "payment not found", false)
-		helpers.JsonResponse().JsonFail(c, http.StatusNotFound, "payment not found")
+		helpers.PrintError(ctxt, c, "payment not found", false)
+		helpers.JsonFail(c, http.StatusNotFound, "payment not found")
 		return
 	}
 
-	helpers.JsonResponse().JsonSuccess(c, payment)
-	helpers.CustomLog().PrintInfo(ctx, c, "execution of payment checking finished.")
+	helpers.JsonSuccess(c, payment)
+	helpers.PrintInfo(ctxt, c, "execution of payment checking finished.")
 }

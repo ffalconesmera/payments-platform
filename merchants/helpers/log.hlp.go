@@ -9,37 +9,26 @@ import (
 )
 
 // CustomLog is a singleton for loggin
-type customLog struct{}
-
-var clog *customLog
-
-func CustomLog() *customLog {
-	if clog == nil {
-		clog = &customLog{}
-	}
-
-	return clog
-}
 
 // Generate and return and uuid for identify context
-func (l *customLog) GetRequestContextId(k string) string {
-	return fmt.Sprintf("%s_%s", k, CustomHash().NewUUIDString())
+func GetRequestContextId(k string) string {
+	return fmt.Sprintf("%s_%s", k, NewUUIDString())
 }
 
 // Print by console a info log
-func (l *customLog) PrintInfo(ctx context.Context, c *gin.Context, v any) {
-	l.logInfo(ctx, c, v)
+func PrintInfo(ctx context.Context, c *gin.Context, v any) {
+	logInfo(ctx, c, v)
 }
 
 // Print by console a error log
-func (l *customLog) PrintError(ctx context.Context, c *gin.Context, v any, shutdown bool) {
-	l.logError(ctx, c, v)
+func PrintError(ctx context.Context, c *gin.Context, v any, shutdown bool) {
+	logError(ctx, c, v)
 	if shutdown {
 		panic("shutdown..!")
 	}
 }
 
-func (l *customLog) logError(ctx context.Context, c *gin.Context, v any) {
+func logError(ctx context.Context, c *gin.Context, v any) {
 	// Processing request
 	c.Next()
 
@@ -54,7 +43,7 @@ func (l *customLog) logError(ctx context.Context, c *gin.Context, v any) {
 	}).Error(v)
 }
 
-func (l *customLog) logInfo(ctx context.Context, c *gin.Context, v any) {
+func logInfo(ctx context.Context, c *gin.Context, v any) {
 	// Processing request
 	c.Next()
 

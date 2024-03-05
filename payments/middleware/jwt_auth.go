@@ -20,7 +20,7 @@ func JWTokenMiddleware() gin.HandlerFunc {
 
 		tokenString = tokenString[len("Bearer "):]
 
-		ok, err := helpers.CustomHash().CheckJWToken(tokenString)
+		ok, err := helpers.CheckJWToken(tokenString)
 		if !ok {
 			c.Abort()
 			c.JSON(http.StatusBadRequest, err)

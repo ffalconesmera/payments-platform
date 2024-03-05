@@ -23,7 +23,7 @@ func NewMerchantRepository() MerchantRepository {
 // FindMerchantByCode: request merchant information by code
 func (m *merchantRepositoryImpl) FindMerchantByCode(paymentCode string) (*dto.Merchant, error) {
 	var jsonMerchant dto.JSONMerchant
-	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.Config().GetMerchantEndpoint(), paymentCode), "GET", "", &jsonMerchant)
+	err := SendRequestApiExternal(fmt.Sprintf("%s/%s", config.GetMerchantEndpoint(), paymentCode), "GET", "", &jsonMerchant)
 
 	if err != nil {
 		return nil, errors.New(err.Error())

@@ -14,38 +14,42 @@ import (
 // RefundPayment: execute RefundPayment defined in service
 // CheckPayment: execute CheckPayment defined in service
 type PaymentController interface {
-	CheckoutPayment(ctx context.Context, c *gin.Context)
-	ProcessPayment(ctx context.Context, c *gin.Context)
-	RefundPayment(ctx context.Context, c *gin.Context)
-	CheckPayment(ctx context.Context, c *gin.Context)
+	CheckoutPayment(c *gin.Context)
+	ProcessPayment(c *gin.Context)
+	RefundPayment(c *gin.Context)
+	CheckPayment(c *gin.Context)
 }
 
 type paymentControllerImpl struct {
 	paymentService service.PaymentService
 }
 
-func NewPaymentController(ctx context.Context, paymentService service.PaymentService) PaymentController {
+func NewPaymentController(paymentService *service.PaymentService) PaymentController {
+	if paymentService == nil {
+		return nil
+	}
+
 	return &paymentControllerImpl{
-		paymentService: paymentService,
+		paymentService: *paymentService,
 	}
 }
 
-func (p paymentControllerImpl) CheckoutPayment(ctx context.Context, c *gin.Context) {
-	checkoutCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
+func (p paymentControllerImpl) CheckoutPayment(c *gin.Context) {
+	checkoutCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
 	p.paymentService.CheckoutPayment(checkoutCtx, c)
 }
 
-func (p paymentControllerImpl) ProcessPayment(ctx context.Context, c *gin.Context) {
-	processCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
+func (p paymentControllerImpl) ProcessPayment(c *gin.Context) {
+	processCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
 	p.paymentService.ProcessPayment(processCtx, c)
 }
 
-func (p paymentControllerImpl) RefundPayment(ctx context.Context, c *gin.Context) {
-	refundCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
+func (p paymentControllerImpl) RefundPayment(c *gin.Context) {
+	refundCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
 	p.paymentService.RefundPayment(refundCtx, c)
 }
 
-func (p paymentControllerImpl) CheckPayment(ctx context.Context, c *gin.Context) {
-	checkPaymentCtx := context.WithValue(ctx, "REQUEST_ID", helpers.CustomHash().NewUUIDString())
+func (p paymentControllerImpl) CheckPayment(c *gin.Context) {
+	checkPaymentCtx := context.WithValue(c, "REQUEST_ID", helpers.NewUUIDString())
 	p.paymentService.CheckPayment(checkPaymentCtx, c)
 }

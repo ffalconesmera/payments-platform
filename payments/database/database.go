@@ -8,25 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-var singleDatabase *gorm.DB
-
-type DatabaseConnection interface {
-	GetDatabase() *gorm.DB
-	InitDatabase(host, port, name, user, password string)
-	Close()
+type DBCon struct {
+	*gorm.DB
 }
 
-type databaseConnection struct{}
-
-func NewDatabaseConnection() DatabaseConnection {
-	return &databaseConnection{}
-}
-
-func (d *databaseConnection) GetDatabase() *gorm.DB {
-	return singleDatabase
-}
-
-func (d *databaseConnection) InitDatabase(host, port, name, user, password string) {
+func NewDatabaseConnection(host, port, name, user, password string) *DBCon {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
 		host,
@@ -45,11 +31,11 @@ func (d *databaseConnection) InitDatabase(host, port, name, user, password strin
 
 	log.Println("database connected..!")
 
-	singleDatabase = db
+	return &DBCon{DB: db}
 }
 
-func (d *databaseConnection) Close() {
-	sqlDB, err := d.GetDatabase().DB()
+func (d *DBCon) Close() {
+	sqlDB, err := d.DB.DB()
 	if err != nil {
 		panic(fmt.Sprintf("failed to get sql db: %s", err))
 	}

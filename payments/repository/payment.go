@@ -1,45 +1,45 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/ffalconesmera/payments-platform/payments/database"
 	"github.com/ffalconesmera/payments-platform/payments/model"
 )
 
 // PaymentRepository is an interface to retrieve and create payments
 type PaymentRepository interface {
-	FindPaymentByCode(paymentCode string) (*model.PayTransaction, bool, error)
-	CreatePayment(payment *model.PayTransaction) error
-	SavePayment(payment *model.PayTransaction) error
-	Repository
+	FindPaymentByCode(ctxt context.Context, paymentCode string) (*model.PayTransaction, bool, error)
+	CreatePayment(ctxt context.Context, payment *model.PayTransaction) error
+	SavePayment(ctxt context.Context, payment *model.PayTransaction) error
 }
 
 type paymentRepositoryImpl struct {
-	db database.DatabaseConnection
-	RepositoryImpl
+	db *database.DBCon
 }
 
-func NewPaymentRepository(db database.DatabaseConnection) PaymentRepository {
-	db.GetDatabase().AutoMigrate(&model.PayTransaction{})
+func NewPaymentRepository(db *database.DBCon) PaymentRepository {
+	db.AutoMigrate(&model.PayTransaction{})
 	return &paymentRepositoryImpl{db: db}
 }
 
 // FindPaymentByCode: retrieve payment data by code
-func (u *paymentRepositoryImpl) FindPaymentByCode(paymentCode string) (*model.PayTransaction, bool, error) {
+func (c *paymentRepositoryImpl) FindPaymentByCode(ctxt context.Context, paymentCode string) (*model.PayTransaction, bool, error) {
 	wherePayment := model.PayTransaction{PaymentCode: paymentCode}
 	var payment model.PayTransaction
-	result := u.db.GetDatabase().Where(wherePayment).Find(&payment)
+	result := c.db.WithContext(ctxt).Where(wherePayment).Find(&payment)
 	return &payment, result.RowsAffected > 0, result.Error
 }
 
 // CreatePayment: store a new payment
-func (u *paymentRepositoryImpl) CreatePayment(refund *model.PayTransaction) error {
-	err := u.db.GetDatabase().Create(&refund)
+func (c *paymentRepositoryImpl) CreatePayment(ctxt context.Context, refund *model.PayTransaction) error {
+	err := c.db.Create(&refund)
 	return err.Error
 }
 
 // SavePayment: update a payment
-func (u *paymentRepositoryImpl) SavePayment(payment *model.PayTransaction) error {
+func (c *paymentRepositoryImpl) SavePayment(ctxt context.Context, payment *model.PayTransaction) error {
 	wherePayment := model.PayTransaction{UUID: payment.UUID}
-	err := u.db.GetDatabase().Where(wherePayment).Save(&payment)
+	err := c.db.Where(wherePayment).Save(&payment)
 	return err.Error
 }
