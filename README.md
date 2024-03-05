@@ -61,7 +61,7 @@ git clone https://github.com/ffalconesmera/payments-platform.git
 
 #### Environment Variables
  
-Create `.env` files at `/merchants` and `/payments` directories based on the `.env.example` file in the same folders.
+Create `.env` files at root, `/merchants` and `/payments` directories based on the `.env.example` file in the same folders.
 
 #### Development
 

@@ -14,7 +14,7 @@ services:
     networks:
       - payment_platform
     env_file:
-      - ./payments/.env
+      - ./.env
     volumes:
       - pgdata1:/var/lib/postgresql/data
       - ./multi-database:/docker-entrypoint-initdb.d
