@@ -21,12 +21,14 @@ Welcome to merchant api..!!
 
 </details>
 
+All endpoints must have `/Content-Type` header with `application/json` value.
+
 ### Sing Up
 
 Allows to register a new merchant for payments processing.
 
 <details>
- <summary><code>POST</code> <code><b>//api/v1/merchants</b></code></summary>
+ <summary><code>POST</code> <code><b>/api/v1/merchants</b></code></summary>
 
 #### Parameters
 
@@ -56,33 +58,33 @@ Succesful payment
   "status": "ok"
 }
 ```
-
-Failed payment
+##### HTTP Code 400
+Bad request. Sent information are incorrect.
 
 ```json
 {
-  "transaction_id": "TXN_01HP07FBXYJJPG7PQVRF5N1MWT",
-  "status": "failure",
-  "description": "Sample transaction",
-  "failure_reason": "card_declined",
-  "payment_provider": "stripe",
-  "amount": 2000,
-  "currency": "eur",
-  "type": "charge",
-  "additional_fields": {
-      "charge_id": "ch_3OgwpAGVGHB8I6rc1HXVKnqH",
-      "payment_intent_id": "pi_3OgwpAGVGHB8I6rc1uUXNS1K"
-  }
+  "status": "failed",
+  "message": "data sent is invalid"
 }
 ```
 
 ##### HTTP Code 400
+Missing Information.
 
 ```json
 {
-  "code": "invalid_request",
-  "status_code": 400,
-  "message": "Invalid request: invalid amount"
+  "status_code": "failed",
+  "message": "message description"
+}
+```
+
+##### HTTP Code 409
+User alreay exits.
+
+```json
+{
+  "status_code": "failed",
+  "message": "username sample_merchant is alreay exits"
 }
 ```
 
@@ -90,9 +92,8 @@ Failed payment
 
 ```json
 {
-  "code": "invalid_server_error",
-  "status_code": 500,
-  "message": "Internal server error"
+  "status_code": "failed",
+  "message": "message description"
 }
 ```
 
