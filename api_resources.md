@@ -98,7 +98,7 @@ Allows to register a new merchant for payments processing.
   ```
 </details>
 
-### Sing Up
+### Login
 
 Return token for refund and query payments.
 <details>
