@@ -28,75 +28,141 @@ All endpoints must have `/Content-Type` header with `application/json` value.
 Allows to register a new merchant for payments processing.
 
 <details>
- <summary><code>POST</code> <code><b>/api/v1/merchants</b></code></summary>
+  <summary><code>POST</code> <code><b>/api/v1/merchants/sing-up</b></code></summary>
 
-#### Parameters
+  #### Parameters
 
-> | name            |  type     | data type   | description                                   |
-> |-----------------|-----------|-------------------------|-----------------------------------|
-> | name            |  required | string      | Name of merchant                              |
-> | user.username   |  required | string      | Username to be able to log in in the future   |
-> | user.password   |  required | string      | User password                                 |
-> | user.email      |  required | string      | Email user                                    |
+  > | name            |  type     | data type   | description                                   |
+  > |-----------------|-----------|-------------------------|-----------------------------------|
+  > | name            |  required | string      | Name of merchant                              |
+  > | user.username   |  required | string      | Username to be able to log in in the future   |
+  > | user.password   |  required | string      | User password                                 |
+  > | user.email      |  required | string      | Email user                                    |
 
-#### Responses
+  #### Responses
 
-##### HTTP Code 200
+  ##### HTTP Code 200
 
-Succesful payment
+  Succesful payment
 
-```json
-{
-  "data": {
-    "merchant_code": "67b281fc-52f1-41cc-bd21-0737713fbf75",
-    "name": "Sample merchant",
-    "user": {
-      "username": "sample_merchant",
-      "email": "sample_merchant@email.com"
-    }
-  },
-  "status": "ok"
-}
-```
-##### HTTP Code 400
-Bad request. Sent information are incorrect.
+  ```json
+  {
+    "data": {
+      "merchant_code": "67b281fc-52f1-41cc-bd21-0737713fbf75",
+      "name": "Sample merchant",
+      "user": {
+        "username": "sample_merchant",
+        "email": "sample_merchant@email.com"
+      }
+    },
+    "status": "ok"
+  }
+  ```
+  ##### HTTP Code 400
+  Bad request. Sent information are incorrect.
 
-```json
-{
-  "status": "failed",
-  "message": "data sent is invalid"
-}
-```
+  ```json
+  {
+    "status": "failed",
+    "message": "data sent is invalid"
+  }
+  ```
 
-##### HTTP Code 400
-Missing Information.
+  ##### HTTP Code 400
+  Missing Information.
 
-```json
-{
-  "status_code": "failed",
-  "message": "message description"
-}
-```
+  ```json
+  {
+    "status_code": "failed",
+    "message": "message description"
+  }
+  ```
 
-##### HTTP Code 409
-User alreay exits.
+  ##### HTTP Code 409
+  User alreay exits.
 
-```json
-{
-  "status_code": "failed",
-  "message": "username sample_merchant is alreay exits"
-}
-```
+  ```json
+  {
+    "status_code": "failed",
+    "message": "username sample_merchant is alreay exits"
+  }
+  ```
 
-##### HTTP Code 500
+  ##### HTTP Code 500
 
-```json
-{
-  "status_code": "failed",
-  "message": "message description"
-}
-```
+  ```json
+  {
+    "status_code": "failed",
+    "message": "message description"
+  }
+  ```
+</details>
 
+Return token for refund and query payments.
+<details>
+  <summary><code>POST</code> <code><b>/api/v1/merchants/login</b></code></summary>
+
+  #### Parameters
+
+  > | name            |  type     | data type   | description                                   |
+  > |-----------------|-----------|-------------------------|-----------------------------------|
+  > | username   |  required | string      | Username   |
+  > | password   |  required | string      | User password                                 |
+
+  #### Responses
+
+  ##### HTTP Code 200
+
+  Succesful login
+
+  ```json
+  {
+    "data": {
+      "username": "hzambrano",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDk2NDg2OTgsInVzZXJuYW1lIjoiaHphbWJyYW5vIn0.1rWmYm1zglb-Xi00FoK1xhhxozdpbNjUhqenv-hzv94",
+      "message": "you are logged..!"
+    },
+    "status": "ok"
+  }
+  ```
+  ##### HTTP Code 400
+  Bad request. Sent information are incorrect.
+
+  ```json
+  {
+    "status": "failed",
+    "message": "data sent is invalid"
+  }
+  ```
+
+  ##### HTTP Code 400
+  Missing Information.
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "message description"
+  }
+  ```
+
+  ##### HTTP Code 404
+  User not found.
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "user sample_merchant not found"
+  }
+  ```
+
+  ##### HTTP Code 500
+
+  ```json
+  {
+    "status_code": "failed",
+    "message": "message description"
+  }
+  ```
 </details>
 
 ### Query payment
