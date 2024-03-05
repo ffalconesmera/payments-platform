@@ -1,6 +1,6 @@
 # API resources
 
-## Online Payment Platform API
+## Merchants API
 
 ### Ping
 
@@ -21,12 +21,12 @@ Welcome to merchant api..!!
 
 </details>
 
-### Create payment
+### Sing Up
 
-**Disclaimer**: When a new payment is created its initial status is intentionally set to `pending`. In order to mock the use case where it takes X amount of time to charge a payment. Therefore, the final status will be given by the event received by webhooks.
+Allows to register a new merchant for payments processing.
 
 <details>
- <summary><code>POST</code> <code><b>/</b></code> <code>(Creates a successful or unsuccessful payment, depending on the test card used)</code></summary>
+ <summary><code>POST</code> <code><b>//api/v1/merchants</b></code></summary>
 
 #### Parameters
 
