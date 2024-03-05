@@ -30,12 +30,12 @@ Allows to register a new merchant for payments processing.
 
 #### Parameters
 
-> | name            |  type     | data type               | description                                              |
-> |-----------------|-----------|-------------------------|----------------------------------------------------------|
-> | amount          |  required | string (urlencoded)     | Amount to perform a payment                              |
-> | currency        |  required | string (urlencoded)     | Currency to perform a payment                            |
-> | payment_method  |  required | string (urlencoded)     | Method to perform payment, refers to Stripe's test cards |
-> | description     |  optional | string (urlencoded)     | Description on what the payment is about                 |
+> | name            |  type     | data type   | description                                   |
+> |-----------------|-----------|-------------------------|-----------------------------------|
+> | name            |  required | string      | Name of merchant                              |
+> | user.username   |  required | string      | Username to be able to log in in the future   |
+> | user.password   |  required | string      | User password                                 |
+> | user.email      |  required | string      | Email user                                    |
 
 #### Responses
 
@@ -45,17 +45,15 @@ Succesful payment
 
 ```json
 {
-  "transaction_id": "TXN_01HP06ZRSNFDPKN3ZBSWS4Z0KT",
-  "status": "pending",
-  "description": "Sample transaction",
-  "payment_provider": "stripe",
-  "amount": 2000,
-  "currency": "eur",
-  "type": "charge",
-  "additional_fields": {
-      "charge_id": "ch_3OgwgvGVGHB8I6rc1Etj264n",
-      "payment_intent_id": "pi_3OgwgvGVGHB8I6rc1ZC8RNGK"
-  }
+  "data": {
+    "merchant_code": "67b281fc-52f1-41cc-bd21-0737713fbf75",
+    "name": "Sample merchant",
+    "user": {
+      "username": "sample_merchant",
+      "email": "sample_merchant@email.com"
+    }
+  },
+  "status": "ok"
 }
 ```
 
