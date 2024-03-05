@@ -1,10 +1,10 @@
 # Online Payments Platform
 
-E-commerce platform that allows to register as a merchant, generate and search for payment orders and process them through the API of a simulated financial institution.
+Resteful APIs that allows to register as a merchant, generate and search for payment orders and process them through the API of a simulated financial institution.
 
 ## Architecture
 
-The architecture is deployed using Docker Compose and has the following components
+The architecture is based on microservices. Is deployed using Docker Compose and has the following components:
 
 - **Merchant API**. API service that allows to register and log in as a merchant.
 
