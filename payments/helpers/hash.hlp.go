@@ -26,7 +26,6 @@ func CheckJWToken(tokenString string) (bool, string) {
 	}
 
 	if !token.Valid {
-		log.Println("asdsadsa")
 		return false, "token invalid"
 	}
 
