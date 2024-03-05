@@ -12,6 +12,10 @@ type DBCon struct {
 	*gorm.DB
 }
 
+type IDBCon interface {
+	GetDatabase(host, port, name, user, password string) *DBCon
+}
+
 func NewDatabaseConnection(host, port, name, user, password string) *DBCon {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
