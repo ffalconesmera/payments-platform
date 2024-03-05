@@ -377,7 +377,7 @@ Api proxy for process a refund with the bank.
   #### Headers
 
   > | name            |  description                                   |
-  > |-----------------|-----------|-------------------------|
+  > |-----------------|-----------|
   > | Authorization   |  Bearer token_sample   |
 
   #### Parameters
