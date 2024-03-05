@@ -14,7 +14,7 @@ services:
     networks:
       - payment_platform
     env_file:
-      - ./payments_platform/payments/.env.example
+      - ./payments/.env.example
     volumes:
       - pgdata1:/var/lib/postgresql/data
       - ./multi-database:/docker-entrypoint-initdb.d
@@ -43,7 +43,7 @@ services:
 
   app:
     build:
-      context: ./payments_platform/merchants
+      context: ./merchants
       dockerfile: ./Dockerfile
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -63,7 +63,7 @@ services:
 
   app_1:
     build:
-      context: ./payments_platform/payments
+      context: ./payments
       dockerfile: ./Dockerfile
     environment:
       - POSTGRES_USER=${DB_USER}
