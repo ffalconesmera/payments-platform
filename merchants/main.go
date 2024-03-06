@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ffalconesmera/payments-platform/merchants/helpers"
 	"log"
 
 	"github.com/ffalconesmera/payments-platform/merchants/config"
@@ -13,6 +14,7 @@ import (
 )
 
 func main() {
+	log.Println(helpers.GenerateHashPassword("123"))
 	log.Println("initializating merchant api..")
 
 	log.Println("read enviroment config..")
