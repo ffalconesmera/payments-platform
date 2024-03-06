@@ -18,19 +18,19 @@ All endpoints must have `/Content-Type` header with `application/json` value.
 ##### HTTP Code 200
 
 ```json
-Welcome to merchant api..!!
+Welcome to merchants api..!!
 ```
 
 </details>
 
 
 
-### Sing Up
+### Sign Up
 
 Allows to register a new merchant for payments processing.
 
 <details>
-  <summary><code>POST</code> <code><b>/api/v1/merchants/sing-up</b></code></summary>
+  <summary><code>POST</code> <code><b>/api/v1/merchants/sign-up</b></code></summary>
 
   #### Parameters
 
@@ -45,7 +45,7 @@ Allows to register a new merchant for payments processing.
 
   ##### HTTP Code 200
 
-  Succesful payment
+  Successful payment
 
   ```json
   {
@@ -61,41 +61,12 @@ Allows to register a new merchant for payments processing.
   }
   ```
   ##### HTTP Code 400
-  Bad request. Sent information are incorrect.
+  Something happened.
 
   ```json
   {
     "status": "failed",
-    "message": "data sent is invalid"
-  }
-  ```
-
-  ##### HTTP Code 400
-  Missing Information.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
-  }
-  ```
-
-  ##### HTTP Code 409
-  User alreay exits.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "username sample_merchant is alreay exits"
-  }
-  ```
-
-  ##### HTTP Code 500
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
+    "message": "error detail"
   }
   ```
 </details>
@@ -117,7 +88,7 @@ Return token for refund and query payments.
 
   ##### HTTP Code 200
 
-  Succesful login
+  Successful login
 
   ```json
   {
@@ -129,42 +100,13 @@ Return token for refund and query payments.
     "status": "ok"
   }
   ```
-  ##### HTTP Code 400
-  Bad request. Sent information are incorrect.
+##### HTTP Code 400
+Something happened.
 
   ```json
   {
     "status": "failed",
-    "message": "data sent is invalid"
-  }
-  ```
-
-  ##### HTTP Code 400
-  Missing Information.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
-  }
-  ```
-
-  ##### HTTP Code 404
-  User not found.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "user sample_merchant not found"
-  }
-  ```
-
-  ##### HTTP Code 500
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
+    "message": "error detail"
   }
   ```
 </details>
@@ -231,7 +173,7 @@ Return payment order information for process charges and refunds.
 
   ##### HTTP Code 200
 
-  Succesful payment checkout
+  Successful payment checkout
 
   ```json
   {
@@ -253,33 +195,15 @@ Return payment order information for process charges and refunds.
     },
     "status": "ok"
 }
-  ```
-  ##### HTTP Code 400
-  Bad request. Sent information are incorrect.
+```
+        
+##### HTTP Code 400
+  Something happened.
 
   ```json
   {
     "status": "failed",
-    "message": "data sent is invalid"
-  }
-  ```
-
-  ##### HTTP Code 400
-  Missing Information.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
-  }
-  ```
-
-  ##### HTTP Code 500
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
+    "message": "error detail"
   }
   ```
 </details>
@@ -320,52 +244,17 @@ Api proxy for process a charge with the bank.
     },
     "status": "ok"
 }
-  ```
-  ##### HTTP Code 400
-  Bad request. Sent information are incorrect.
+```
+##### HTTP Code 400
+Something happened.
 
   ```json
   {
     "status": "failed",
-    "message": "data sent is invalid"
-  }
-  ```
-
-
-  ##### HTTP Code 400
-  Missing Information.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
-  }
-  ```
-
-  ##### HTTP Code 409
-  Payment is already processed, refunded o failed.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "could not process. payment is status."
-  }
-  ```
-
-  ##### HTTP Code 500
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "message description"
+    "message": "error detail"
   }
   ```
 </details>
-
-
-
-
-
 
 
 ### Refund payment
@@ -409,33 +298,13 @@ Api proxy for process a refund with the bank.
     "status": "ok"
 }
   ```
-  ##### HTTP Code 400
-  Bad request. Sent information are incorrect.
+##### HTTP Code 400
+Something happened.
 
   ```json
   {
     "status": "failed",
-    "message": "data sent is invalid"
-  }
-  ```
-
-  ##### HTTP Code 401
-  Unauthorized.
-
-  ```json
-  {
-    "status": "failed",
-    "message": "token invalid"
-  }
-  ```
-
-  ##### HTTP Code 400
-  Bad request. Sent information are incorrect.
-
-  ```json
-  {
-    "status": "failed",
-    "message": "data sent is invalid"
+    "message": "error detail"
   }
   ```
 
@@ -450,7 +319,7 @@ Api proxy for process a refund with the bank.
   ```
 
   ##### HTTP Code 409
-  Payment is already refunded, pendig o failed.
+  Payment is already refunded, pending o failed.
 
   ```json
   {
@@ -468,10 +337,6 @@ Api proxy for process a refund with the bank.
   }
   ```
 </details>
-
-
-
-
 
 
 ### Query payment
@@ -508,23 +373,13 @@ Get payment information.
     "status": "ok"
 }
   ```
-
-  ##### HTTP Code 404
-  Payment not found.
-
-  ```json
-  {
-    "status_code": "failed",
-    "message": "payment not found"
-  }
-  ```
-
-  ##### HTTP Code 500
+##### HTTP Code 400
+Something happened.
 
   ```json
   {
-    "status_code": "failed",
-    "message": "message description"
+    "status": "failed",
+    "message": "error detail"
   }
   ```
 </details>
