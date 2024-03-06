@@ -33,7 +33,7 @@ func main() {
 	merchantRepo := external_repository.NewMerchantRepository()
 
 	log.Println("setting service layer..")
-	paymentService := service.NewPaymentService(&paymentRepo, &refundRepo, &customerRepo, &bankRepo, &merchantRepo)
+	paymentService := service.NewPaymentService(paymentRepo, refundRepo, customerRepo, bankRepo, merchantRepo)
 
 	log.Println("setting controller layer..")
 	paymentController := controller.NewPaymentController(&paymentService)

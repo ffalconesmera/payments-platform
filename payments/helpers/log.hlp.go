@@ -21,19 +21,19 @@ func PrintInfo(ctx context.Context, c *gin.Context, v any) {
 }
 
 // Print by console a error log
-func PrintError(ctx context.Context, c *gin.Context, v any, shutdown bool) {
-	logError(ctx, c, v)
+func PrintError(c *gin.Context, v any, shutdown bool) {
+	logError(c, v)
 	if shutdown {
 		panic("shutdown..!")
 	}
 }
 
-func logError(ctx context.Context, c *gin.Context, v any) {
+func logError(c *gin.Context, v any) {
 	// Processing request
 	c.Next()
 
 	log.WithFields(log.Fields{
-		"PID":       ctx.Value("REQUEST_ID"),
+		"PID":       c.Value("REQUEST_ID"),
 		"METHOD":    c.Request.Method,
 		"URI":       c.Request.RequestURI,
 		"STATUS":    c.Writer.Status(),

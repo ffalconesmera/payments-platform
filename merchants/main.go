@@ -29,7 +29,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 
 	log.Println("setting service layer..")
-	merchantService := service.NewMerchantService(&userRepo, &merchantRepo)
+	merchantService := service.NewMerchantService(userRepo, merchantRepo)
 
 	log.Println("setting controller layer..")
 	merchantController := controller.NewMerchantController(&merchantService)

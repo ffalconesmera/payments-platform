@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/gomod-cache --mount=type=cache,target=/go-cache \
 FROM alpine:3.19
 
 COPY --from=build /payments ./.
-COPY .env .env
+COPY .env.example .env
 
 EXPOSE 8082
 

@@ -1,0 +1,5 @@
+cd ./service
+mockgen PaymentService >> ../mocks/repository/payment.repo_mock.go
+mockgen PaymentService >> ../mocks/repository/payment.repo_mock.go
+cd ../controller
+mockgen PaymentController >> ../mocks/controller/payment.ctrl_mock.go
