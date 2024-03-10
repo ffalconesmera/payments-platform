@@ -27,14 +27,14 @@ func (cr *apiRouter) SetupPublicRouter() *gin.Engine {
 	g.Use(middleware.ContentTypeJsonMiddleware())
 
 	g.GET("/running", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "Welcome to merchant api..!")
+		c.JSON(http.StatusOK, "Welcome to merchants api..!")
 	})
 
 	routesApi := g.Group("/api/v1/merchants")
 	{
 		routesMerchants := routesApi.Group("/")
 		routesMerchants.POST("/login", func(c *gin.Context) { cr.merchantController.Login(c) })
-		routesMerchants.POST("/sing-up", func(c *gin.Context) { cr.merchantController.SingUp(c) })
+		routesMerchants.POST("/sign-up", func(c *gin.Context) { cr.merchantController.SingUp(c) })
 		//routesMerchants.GET("/:merchant_code", func(c *gin.Context) { r.merchantController.FindMerchantByCode(ctx, c) })
 	}
 

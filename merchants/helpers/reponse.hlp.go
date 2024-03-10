@@ -18,8 +18,8 @@ func jsonFail(c *gin.Context, message string) {
 
 func ResponseJson(c *gin.Context, data interface{}, err error) {
 	if err != nil {
-		PrintError(c, fmt.Sprintf("something happend: %s", err.Error()), false)
-		jsonFail(c, fmt.Sprintf("something happend: %s", err.Error()))
+		PrintError(c, fmt.Sprintf("something happened: %s", err.Error()), false)
+		jsonFail(c, fmt.Sprintf("something happened: %s", err.Error()))
 		return
 	}
 
