@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"errors"
 	"log"
 
 	"github.com/ffalconesmera/payments-platform/payments/config"
@@ -30,4 +31,21 @@ func CheckJWToken(tokenString string) (bool, string) {
 	}
 
 	return true, ""
+}
+
+func GetMerchantCodeFromToken(tokenString string) (string, error) {
+	secretKey := []byte(config.GetJWTSecretKey())
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims["merchant_code"].(string), nil
+	} else {
+		return "", errors.New("Invalid JWT Token")
+	}
 }
