@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	log.Println("initializating merchant api..")
+	log.Println("initializing payments api..")
 
 	log.Println("reading variables environment..")
 	config.InitConfig()

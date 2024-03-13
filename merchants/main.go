@@ -15,9 +15,9 @@ import (
 
 func main() {
 	log.Println(helpers.GenerateHashPassword("123"))
-	log.Println("initializating merchant api..")
+	log.Println("initializing merchant api..")
 
-	log.Println("read enviroment config..")
+	log.Println("read environment config..")
 	config.InitConfig()
 
 	log.Println("set up http logger..")

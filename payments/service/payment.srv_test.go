@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSingUp(t *testing.T) {
+func TestCheckoutPayment(t *testing.T) {
 	t.Run("failed in method FindMerchantByCode", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
