@@ -126,7 +126,7 @@ func (cp paymentControllerImpl) RefundPayment(c *gin.Context) {
 		helpers.ResponseJson(c, nil, err)
 		return
 	}
-	ref, err := cp.paymentService.RefundPayment(c, paymentCode, string(refundInfo))
+	ref, err := cp.paymentService.RefundPayment(c, paymentCode, c.Value("MERCHANT_CODE").(string), string(refundInfo))
 	helpers.ResponseJson(c, ref, err)
 }
 
