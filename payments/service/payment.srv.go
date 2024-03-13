@@ -24,7 +24,7 @@ type PaymentService interface {
 	CheckoutPayment(ctxt context.Context, merchantCode string, payment dto.Payment) (*dto.Payment, error)
 	ProcessPayment(ctxt context.Context, paymentCode string, cardInfo string) (*ext_dto.BankPayment, error)
 	RefundPayment(ctxt context.Context, paymentCode string, refundInfo string) (*ext_dto.BankRefund, error)
-	CheckPayment(ctxt context.Context, paymentCode string) (*dto.Payment, error)
+	CheckPayment(ctxt context.Context, paymentCode string, merchantCode string) (*dto.Payment, error)
 }
 
 type paymentServiceImpl struct {
@@ -199,7 +199,7 @@ func (cp paymentServiceImpl) RefundPayment(ctxt context.Context, paymentCode str
 	return bankResp, nil
 }
 
-func (cp paymentServiceImpl) CheckPayment(ctxt context.Context, paymentCode string) (*dto.Payment, error) {
+func (cp paymentServiceImpl) CheckPayment(ctxt context.Context, paymentCode string, merchantCode string) (*dto.Payment, error) {
 	pay, findPayment, err := cp.paymentRepository.FindPaymentByCode(ctxt, paymentCode)
 
 	if err != nil {
@@ -207,6 +207,10 @@ func (cp paymentServiceImpl) CheckPayment(ctxt context.Context, paymentCode stri
 	}
 
 	if !findPayment {
+		return nil, errors.New("payment not found")
+	}
+
+	if pay.MerchantCode != merchantCode {
 		return nil, errors.New("payment not found")
 	}
 
