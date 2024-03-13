@@ -126,7 +126,7 @@ func (cp paymentControllerImpl) RefundPayment(c *gin.Context) {
 		helpers.ResponseJson(c, nil, err)
 		return
 	}
-	ref, err := cp.paymentService.RefundPayment(c, paymentCode, c.Value("MERCHANT_CODE").(string), string(refundInfo))
+	ref, err := cp.paymentService.RefundPayment(c, paymentCode, c.Param("MERCHANT_CODE"), string(refundInfo))
 	helpers.ResponseJson(c, ref, err)
 }
 
@@ -134,6 +134,6 @@ func (cp paymentControllerImpl) RefundPayment(c *gin.Context) {
 func (cp paymentControllerImpl) CheckPayment(c *gin.Context) {
 	c.AddParam("REQUEST_ID", helpers.NewUUIDString())
 	paymentCode := c.Params.ByName("payment_code")
-	pay, err := cp.paymentService.CheckPayment(c, paymentCode, c.Value("MERCHANT_CODE").(string))
+	pay, err := cp.paymentService.CheckPayment(c, paymentCode, c.Param("MERCHANT_CODE"))
 	helpers.ResponseJson(c, pay, err)
 }
