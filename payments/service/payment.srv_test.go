@@ -190,7 +190,7 @@ func TestRefundPayment(t *testing.T) {
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), gomock.Any()).Return(nil, false, errors.New("payment not found"))
 		paymentService := NewPaymentService(paymentRepository, nil, nil, nil, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -203,7 +203,7 @@ func TestRefundPayment(t *testing.T) {
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), gomock.Any()).Return(nil, false, nil)
 		paymentService := NewPaymentService(paymentRepository, nil, nil, nil, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -234,7 +234,38 @@ func TestRefundPayment(t *testing.T) {
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), gomock.Any()).Return(&modelMock, true, nil)
 		paymentService := NewPaymentService(paymentRepository, nil, nil, nil, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
+
+		assert.Error(t, err)
+		assert.Nil(t, response)
+	})
+
+	t.Run("failed by merchantCode is different", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		modelMock := model.PayTransaction{
+			UUID:                     "",
+			PaymentCode:              "",
+			Amount:                   0,
+			Description:              "",
+			Currency:                 "",
+			Status:                   model.TransactionStatusFailure,
+			ExpirationProcess:        nil,
+			NaturalExpirationProcess: "",
+			FailureReason:            nil,
+			BankReference:            nil,
+			BankName:                 nil,
+			MerchantCode:             "123",
+			CustomerUUID:             "",
+			RefundUUID:               nil,
+			BaseModel:                model.BaseModel{},
+		}
+
+		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
+		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), gomock.Any()).Return(&modelMock, true, nil)
+		paymentService := NewPaymentService(paymentRepository, nil, nil, nil, nil)
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -267,7 +298,7 @@ func TestRefundPayment(t *testing.T) {
 		bankRepository := mock_repository.NewMockBankRepository(ctrl)
 		bankRepository.EXPECT().ProcessRefund("", "").Return(nil, errors.New("bank return error"))
 		paymentService := NewPaymentService(paymentRepository, nil, nil, bankRepository, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -309,7 +340,7 @@ func TestRefundPayment(t *testing.T) {
 		refundRepository := mock_repository.NewMockRefundRepository(ctrl)
 		refundRepository.EXPECT().CreateRefund(context.TODO(), gomock.Any()).Return(errors.New("error saving refund"))
 		paymentService := NewPaymentService(paymentRepository, refundRepository, nil, bankRepository, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -352,7 +383,7 @@ func TestRefundPayment(t *testing.T) {
 		refundRepository.EXPECT().CreateRefund(context.TODO(), gomock.Any()).Return(nil)
 		paymentRepository.EXPECT().SavePayment(context.TODO(), gomock.Any()).Return(errors.New("error saving payment"))
 		paymentService := NewPaymentService(paymentRepository, refundRepository, nil, bankRepository, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -393,7 +424,7 @@ func TestRefundPayment(t *testing.T) {
 		bankRepository.EXPECT().ProcessRefund("", "").Return(&bankRefund, nil)
 		paymentRepository.EXPECT().SavePayment(context.TODO(), gomock.Any()).Return(nil)
 		paymentService := NewPaymentService(paymentRepository, nil, nil, bankRepository, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -436,7 +467,7 @@ func TestRefundPayment(t *testing.T) {
 		refundRepository.EXPECT().CreateRefund(context.TODO(), gomock.Any()).Return(nil)
 		paymentRepository.EXPECT().SavePayment(context.TODO(), gomock.Any()).Return(nil)
 		paymentService := NewPaymentService(paymentRepository, refundRepository, nil, bankRepository, nil)
-		response, err := paymentService.RefundPayment(context.TODO(), "", "")
+		response, err := paymentService.RefundPayment(context.TODO(), "", "", "")
 
 		assert.Nil(t, err)
 		assert.NotNil(t, response)
