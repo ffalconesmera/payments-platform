@@ -248,5 +248,17 @@ func (cp paymentServiceImpl) CheckPayment(ctxt context.Context, paymentCode stri
 		},
 	}
 
+	if pay.RefundUUID != nil {
+		var refund dto.Refund
+		refM, findRefund, _ := cp.refundRepository.FindRefundById(ctxt, *pay.RefundUUID)
+		if findRefund {
+			refund.Code = refM.Code
+			refund.BankReference = refM.BankReference
+			refund.Date = refM.Date.Format("2006-01-02 15:04:05")
+
+			payment.Refund = &refund
+		}
+	}
+
 	return &payment, nil
 }
