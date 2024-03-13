@@ -29,6 +29,15 @@ func JWTokenMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		merchantCode, errC := helpers.GetMerchantCodeFromToken(tokenString)
+		if errC != nil {
+			c.Abort()
+			c.JSON(http.StatusBadRequest, errC)
+			return
+		}
+
+		c.AddParam("MERCHANT_CODE", merchantCode)
+
 		c.Next()
 	}
 }
