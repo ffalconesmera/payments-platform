@@ -104,7 +104,7 @@ func TestCheckPayment(t *testing.T) {
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(nil, false, errors.New("payment not found"))
 		paymentService := NewPaymentService(paymentRepository, nil, nil, nil, nil)
-		response, err := paymentService.CheckPayment(context.TODO(), "")
+		response, err := paymentService.CheckPayment(context.TODO(), "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -117,7 +117,20 @@ func TestCheckPayment(t *testing.T) {
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(nil, false, nil)
 		paymentService := NewPaymentService(paymentRepository, nil, nil, nil, nil)
-		response, err := paymentService.CheckPayment(context.TODO(), "")
+		response, err := paymentService.CheckPayment(context.TODO(), "", "")
+
+		assert.Error(t, err)
+		assert.Nil(t, response)
+	})
+
+	t.Run("failed by merchantCode is different", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
+		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(&model.PayTransaction{MerchantCode: "123"}, true, nil)
+		paymentService := NewPaymentService(paymentRepository, nil, nil, nil, nil)
+		response, err := paymentService.CheckPayment(context.TODO(), "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -129,10 +142,10 @@ func TestCheckPayment(t *testing.T) {
 
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		customerRepository := mock_repository.NewMockCustomerRepository(ctrl)
-		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(&model.PayTransaction{}, true, nil)
+		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(&model.PayTransaction{MerchantCode: ""}, true, nil)
 		customerRepository.EXPECT().FindCustomerById(context.TODO(), "").Return(nil, false, errors.New("error finding customer"))
 		paymentService := NewPaymentService(paymentRepository, nil, customerRepository, nil, nil)
-		response, err := paymentService.CheckPayment(context.TODO(), "")
+		response, err := paymentService.CheckPayment(context.TODO(), "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -144,10 +157,10 @@ func TestCheckPayment(t *testing.T) {
 
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		customerRepository := mock_repository.NewMockCustomerRepository(ctrl)
-		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(&model.PayTransaction{}, true, nil)
+		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(&model.PayTransaction{MerchantCode: ""}, true, nil)
 		customerRepository.EXPECT().FindCustomerById(context.TODO(), "").Return(nil, false, nil)
 		paymentService := NewPaymentService(paymentRepository, nil, customerRepository, nil, nil)
-		response, err := paymentService.CheckPayment(context.TODO(), "")
+		response, err := paymentService.CheckPayment(context.TODO(), "", "")
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -159,10 +172,10 @@ func TestCheckPayment(t *testing.T) {
 
 		paymentRepository := mock_repository.NewMockPaymentRepository(ctrl)
 		customerRepository := mock_repository.NewMockCustomerRepository(ctrl)
-		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(&model.PayTransaction{}, true, nil)
+		paymentRepository.EXPECT().FindPaymentByCode(context.TODO(), "").Return(&model.PayTransaction{MerchantCode: ""}, true, nil)
 		customerRepository.EXPECT().FindCustomerById(context.TODO(), "").Return(&model.PayCustomer{}, true, nil)
 		paymentService := NewPaymentService(paymentRepository, nil, customerRepository, nil, nil)
-		response, err := paymentService.CheckPayment(context.TODO(), "")
+		response, err := paymentService.CheckPayment(context.TODO(), "", "")
 
 		assert.Nil(t, err)
 		assert.NotNil(t, response)
