@@ -29,11 +29,11 @@ func NewUUIDString() string {
 }
 
 // Generate a json web token for authorization
-func CreateJWToken(username string) (string, error) {
+func CreateJWToken(merchantCode string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"exp":      time.Now().Add(time.Minute * time.Duration(config.GetJWTExpiration())).Unix(),
+			"merchant_code": merchantCode,
+			"exp":           time.Now().Add(time.Minute * time.Duration(config.GetJWTExpiration())).Unix(),
 		})
 
 	tokenString, err := token.SignedString([]byte(config.GetJWTSecretKey()))
@@ -42,21 +42,4 @@ func CreateJWToken(username string) (string, error) {
 	}
 
 	return tokenString, nil
-}
-
-// Check if a json web token is valid
-func CheckJWToken(tokenString string) (bool, string) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return config.GetJWTSecretKey(), nil
-	})
-
-	if err != nil {
-		return false, "token invalid"
-	}
-
-	if !token.Valid {
-		return false, "token invalid"
-	}
-
-	return true, ""
 }
