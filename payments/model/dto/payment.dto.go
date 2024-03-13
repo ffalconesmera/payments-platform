@@ -18,4 +18,5 @@ type Payment struct {
 	CustomerUUID             string     `json:"-"`
 	RefundUUID               *string    `json:"-"`
 	Customer                 Customer   `json:"customer"`
+	Refund                   *Refund    `json:"refund,omitempty"`
 }
