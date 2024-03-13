@@ -92,7 +92,17 @@ func (m *merchantServiceImpl) Login(ctxt context.Context, login dto.LoginInput) 
 		return nil, errors.New("password incorrect")
 	}
 
-	token, err := helpers.CreateJWToken(user.Username)
+	merchant, findMerchant, err := m.merchantRepository.FindMerchantById(ctxt, user.MerchantUUID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !findMerchant {
+		return nil, fmt.Errorf("merchant %s not found", login.Username)
+	}
+
+	token, err := helpers.CreateJWToken(merchant.MerchantCode)
 	if err != nil {
 		return nil, errors.New("error generating token")
 	}
